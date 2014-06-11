@@ -2,4 +2,4 @@
 
 (Use the ```gol``` Javascript object and basic API on your page.)
 
-**NOTE: gol is still in development, not yet ready for production.***
+**NOTE: gol is still in development, not yet ready for production.**
