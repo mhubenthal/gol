@@ -23,7 +23,13 @@
   var gol_ctx = gol_canvas.getContext('2d');   
 
   // Use two boards, one for current gol, one to hold next gol
-  var gol_lifeBoard1 = [[],[]], gol_lifeBoard2 = [[],[]];
+  var gol_lifeBoard1 = new Array(gol_boardCellHeight), gol_lifeBoard2 = new Array(gol_boardCellHeight);
+  // Initialize two dimensional arrays for cells
+  for(var i=0;i<gol_boardCellHeight;i++) {
+    gol_lifeBoard1[i] = new Array(gol_boardCellWidth);
+    gol_lifeBoard2[i] = new Array(gol_boardCellWidth);
+  }
+  x[5][12] = 3.0;
   // Set flag to start gol at board one
   var gol_board1isCurrent = true, gol_board2isCurrent = false;
   // Set default gol board and cell sizes and colors, and interval for speed of life
@@ -32,8 +38,8 @@
   // Set offset values for gol origin
   var gol_originX = 0, gol_originY = 0;
   // Set default canvas size
-  gol_backgroundWidth = ((gol_boardCellWidth*10)+gol_boardCellWidth+1);
-  gol_backgroundHeight = ((gol_boardCellHeight*10)+gol_boardCellHeight+1)
+  gol_backgroundWidth = ((gol_boardCellWidth*gol_cellSize)+gol_boardCellWidth+1);
+  gol_backgroundHeight = ((gol_boardCellHeight*gol_cellSize)+gol_boardCellHeight+1)
   gol_canvas.width = gol_backgroundWidth;
   gol_canvas.height = gol_backgroundHeight;
 
@@ -41,10 +47,10 @@
   var gol_isPlaying = false, gol_isPaused = true, gol_shouldPlayIntro = true;
 
   // Instantiate life, all dead cells to begin
-  for(var xPos=0;xPos<gol_boardCellWidth;xPos++){
-    for(var yPos=0;yPos<gol_boardCellHeight;yPos++){
-      //gol_lifeBoard1[xPos][yPos] = 0;
-      //gol_lifeBoard2[xPos][yPos] = 0;
+  for(var yPos=0;yPos<gol_boardCellHeight;yPos++){
+    for(var xPos=0;xPos<gol_boardCellWidth;xPos++){
+      gol_lifeBoard1[yPos][xPos] = 0;
+      gol_lifeBoard2[yPos][xPos] = 0;
     }
   }
 
