@@ -41,18 +41,6 @@
   // Set default values for state of board
   var gol_isPlaying = false, gol_isPaused = true, gol_shouldPlayIntro = true;
 
-  // Instantiate life, all dead cells to begin
-  for(var yPos=0;yPos<gol_boardCellHeight;yPos++){
-    gol_lifeBoard1[yPos] = [];
-    gol_lifeBoard2[yPos] = [];
-    for(var xPos=0;xPos<gol_boardCellWidth;xPos++){
-        console.log("x before: " + xPos + " y before: " + yPos);
-      gol_lifeBoard1[yPos][xPos] = 0;
-        console.log("x after: " + xPos + " y after: " + yPos);
-      gol_lifeBoard2[yPos][xPos] = 0;
-    }
-  }
-
   /////////////////////////////////////////////
   //  Internal gol functions
   /////////////////////////////////////////////
@@ -65,7 +53,7 @@
 
   // Draw complete board of dead(white) cells
   function gol_drawEmptyLife(){
-    gol_ctx.fillStyle = "white";
+    gol_ctx.fillStyle = gol_cellColor;
     for(var xPos=1;xPos<gol_backgroundWidth;xPos+=11){
       for(var yPos=1;yPos<gol_backgroundHeight;yPos+=11){
         gol_ctx.fillRect(xPos,yPos,gol_cellSize,gol_cellSize);
@@ -73,10 +61,55 @@
     }
   }
 
+  // Draw current board of life
+  function gol_drawLife(){
+    // Use board1 if current
+    if(gol_board1isCurrent){
+      for(var xPos=1;xPos<gol_backgroundWidth;xPos+=11){
+        for(var yPos=1;yPos<gol_backgroundHeight;yPos+=11){
+          // Dead cell
+          if(gol_lifeBoard1[yPos][xPos] === 0){
+            gol_ctx.fillStyle = gol_backgroundColor;
+            gol_ctx.fillRect(xPos,yPos,gol_cellSize,gol_cellSize);
+          } 
+          // Else live cell
+          gol_ctx.fillStyle = gol_cellColor;
+          gol_ctx.fillRect(xPos,yPos,gol_cellSize,gol_cellSize);
+        }
+      }
+    } 
+    // Else, board2 is current 
+    if(gol_board2isCurrent){
+      for(var xPos=1;xPos<gol_backgroundWidth;xPos+=11){
+        for(var yPos=1;yPos<gol_backgroundHeight;yPos+=11){
+          // Dead cell
+          if(gol_lifeBoard1[yPos][xPos] === 0){
+            gol_ctx.fillStyle = gol_backgroundColor;
+            gol_ctx.fillRect(xPos,yPos,gol_cellSize,gol_cellSize);
+          } 
+          // Else live cell
+          gol_ctx.fillStyle = gol_cellColor;
+          gol_ctx.fillRect(xPos,yPos,gol_cellSize,gol_cellSize);
+        }
+      }
+    } 
+
   // Draw complete empty board
   function gol_drawEmptyBoard(){
     gol_drawBackground();
     gol_drawEmptyLife();
+  }
+
+  // Set both life boards to all dead ("0" values)
+  function gol_clearLife(){
+    for(var yPos=0;yPos<gol_boardCellHeight;yPos++){
+      gol_lifeBoard1[yPos] = [];
+      gol_lifeBoard2[yPos] = [];
+      for(var xPos=0;xPos<gol_boardCellWidth;xPos++){
+        gol_lifeBoard1[yPos][xPos] = 0;
+        gol_lifeBoard2[yPos][xPos] = 0;
+      }
+    }
   }
 
   // Check current board agains rules for Conway's
@@ -92,25 +125,41 @@
     if(gol_board1isCurrent){
       for(var xPos=0;xPos<gol_boardCellWidth;xPos++){
         for(var yPos=0;yPos<gol_boardCellHeight;yPos++){
-          gol_lifeBoard1[xPos][yPos] = 0;
-          gol_lifeBoard2[xPos][yPos] = 0;
+          
+          // Check cells against rules
+
         }
       }
+      gol_board1isCurrent = false;
+      gol_board2isCurrent = true;
     }
-    // Board 2 is current
+    // Else board 2 is current
     if(gol_board2isCurrent){
       for(var xPos=0;xPos<gol_boardCellWidth;xPos++){
         for(var yPos=0;yPos<gol_boardCellHeight;yPos++){
-          gol_lifeBoard1[xPos][yPos] = 0;
-          gol_lifeBoard2[xPos][yPos] = 0;
+          
+          // Check cells against rules
+
         }
       }
+      gol_board2isCurrent = false;
+      gol_board1isCurrent = true;
     }
   }
 
   // Plays gol intro
   function gol_playIntro(){
 
+  }
+
+  // Gol life loop
+  function gol_playLife(){
+    // Cycle through board if not paused
+    // Check all cells against rules
+    while(!gol_isPaused){
+      gol_checkBoard();
+      gol_drawLife();
+    }
   }
 
   /////////////////////////////////////////////
@@ -124,44 +173,60 @@
     if(gol_shouldPlayIntro){
       gol_playIntro();
     }
-    // Turn off intro
+    // If intro is over, or not chosen, turn off intro
     gol_shouldPlayIntro = false;
     gol_drawEmptyBoard();
+    gol_clearLife();
   };
+  // Play current gol board
   gol.playLife = function(){
-
+    gol_isPaused = false;
+    gol_playLife();
   };
   // Pause
   gol.pauseLife = function(){
+    gol_isPaused = true;
   };
   // Reset the board
   gol.clearLife = function(){
+    gol_isPaused = true;
+    gol_clearLife();
   };
   // Play gol intro
   gol.playIntro = function(){
+
   };
 
-  // Cusomize gol
+  // Customize gol
   // Change grid color, takes a valid CSS color string
   gol.setGridColor = function(newGridColor){
+    gol_isPaused = true;
     gol_backgroundColor = newGridColor;
+    gol_isPaused = false;
+    gol_playLife();
   };
   // Change interval in ms of lifecycles
   gol.setLifeSpeed = function(newLifeSpeed){
+    gol_isPaused = true;
     gol_lifeSpeed = newLifeSpeed;
+    gol_isPaused = false;
+    gol_playLife();
   };
   // Change cell color, takes a valid CSS color string
-  gol.setLifeColor = function (newLifeColor) {
-    gol_cellColor = newLifeColor;
+  gol.setCellColor = function (newCellColor) {
+    gol_isPaused = true;
+    gol_cellColor = newCellColor;
+    gol_isPaused = false;
+    gol_playLife();
   };
   // Turn intro on/off, "1" = on, "0" = off
   gol.setIntro = function(newSetting){
     gol_shouldPlayIntro = false;
-    if(newSetting==1){
+    if(newSetting===1){
       gol_playIntro = true;
     }
   }
 
   // Register the gol object to the global namespace
-  this.gol = gol;
-}());
+  window.gol = gol;
+}(window));
