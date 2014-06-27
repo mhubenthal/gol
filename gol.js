@@ -4,7 +4,7 @@
 // Gol may be freely distributed under the MIT license.
 
 // Wrap the library in an IIFE
-(function(){ 
+(function(window){ 
   // Declare gol object for use in global namespace
   var gol = {
       
@@ -29,17 +29,17 @@
   var gol_board1isCurrent = true, gol_board2isCurrent = false;
   // Set default gol board and cell sizes and colors, and interval for speed of life
   // (Grid lines are drawn at 1px wide)
-  var gol_backgroundColor = "black", gol_backgroundWidth, gol_backgroundHeight, gol_boardCellHeight = 30, gol_boardCellWidth = 60, gol_cellSize = 10, gol_cellColor = "black", gol_lifeSpeed = 100;
+  var gol_backgroundColor = "black", gol_backgroundWidth, gol_backgroundHeight, gol_boardCellHeight = 30, gol_boardCellWidth = 60, gol_cellSize = 10, gol_cellColor = "white", gol_lifeSpeed = 100, gol_intervalId;
   // Set offset values for gol origin
   var gol_originX = 0, gol_originY = 0;
   // Set default canvas size
   gol_backgroundWidth = ((gol_boardCellWidth*gol_cellSize)+gol_boardCellWidth+1);
-  gol_backgroundHeight = ((gol_boardCellHeight*gol_cellSize)+gol_boardCellHeight+1)
+  gol_backgroundHeight = ((gol_boardCellHeight*gol_cellSize)+gol_boardCellHeight+1);
   gol_canvas.width = gol_backgroundWidth;
   gol_canvas.height = gol_backgroundHeight;
 
   // Set default values for state of board
-  var gol_isPlaying = false, gol_isPaused = true, gol_shouldPlayIntro = true;
+  var gol_isPaused = true, gol_shouldPlayIntro = true;
 
   /////////////////////////////////////////////
   //  Internal gol functions
@@ -80,8 +80,8 @@
     } 
     // Else, board2 is current 
     if(gol_board2isCurrent){
-      for(var xPos=1;xPos<gol_backgroundWidth;xPos+=11){
-        for(var yPos=1;yPos<gol_backgroundHeight;yPos+=11){
+      for(xPos=1;xPos<gol_backgroundWidth;xPos+=11){
+        for(yPos=1;yPos<gol_backgroundHeight;yPos+=11){
           // Dead cell
           if(gol_lifeBoard1[yPos][xPos] === 0){
             gol_ctx.fillStyle = gol_backgroundColor;
@@ -92,7 +92,8 @@
           gol_ctx.fillRect(xPos,yPos,gol_cellSize,gol_cellSize);
         }
       }
-    } 
+    }
+  } 
 
   // Draw complete empty board
   function gol_drawEmptyBoard(){
@@ -101,13 +102,11 @@
   }
 
   // Set both life boards to all dead ("0" values)
-  function gol_clearLife(){
+  function gol_clearLife(boardToClear){
     for(var yPos=0;yPos<gol_boardCellHeight;yPos++){
-      gol_lifeBoard1[yPos] = [];
-      gol_lifeBoard2[yPos] = [];
+      boardToClear[yPos] = [];
       for(var xPos=0;xPos<gol_boardCellWidth;xPos++){
-        gol_lifeBoard1[yPos][xPos] = 0;
-        gol_lifeBoard2[yPos][xPos] = 0;
+        boardToClear[yPos][xPos] = 0;
       }
     }
   }
@@ -115,51 +114,82 @@
   // Check current board agains rules for Conway's
   // game of life and change next board accordingly.
   //    Conway's Game of Life rules (Wikipedia):
-  //      1. Any live cell with fewer than two live neighbours dies, as if caused by under-population.
-  //      2. Any live cell with two or three live neighbours lives on to the next generation.
-  //      3. Any live cell with more than three live neighbours dies, as if by overcrowding.
-  //      4. Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+  //      1. Any live cell with fewer than two live neighbors dies, as if caused by under-population.
+  //      2. Any live cell with two or three live neighbors lives on to the next generation.
+  //      3. Any live cell with more than three live neighbors dies, as if by overcrowding.
+  //      4. Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction.
   function gol_checkBoard(){
+    // N holds number of live neighbors of current cell
+    var n = 0;
     // Check which board is current
     // Board 1 is current
     if(gol_board1isCurrent){
       for(var xPos=0;xPos<gol_boardCellWidth;xPos++){
         for(var yPos=0;yPos<gol_boardCellHeight;yPos++){
-          
-          // Check cells against rules
-
+          // Check if current cell is live
+          if(gol_lifeBoard1[yPos][xPos]===1){
+            if((n>3)||(n<2)){
+              gol_lifeBoard2[yPos][xPos] = 0; // Set next board to dead cell
+            }
+            gol_lifeBoard2[yPos][xPos] = 1; // Set next board to live cell
+          }
+          // Else cell is dead
+          if(n===3){
+            gol_lifeBoard2[yPos][xPos] = 1; // Set next board to live cell
+          }
+          gol_lifeBoard2[yPos][xPos] = 0; // Set next board to dead cell
         }
       }
       gol_board1isCurrent = false;
+      gol_clearLife(gol_lifeBoard1);
       gol_board2isCurrent = true;
     }
     // Else board 2 is current
     if(gol_board2isCurrent){
-      for(var xPos=0;xPos<gol_boardCellWidth;xPos++){
-        for(var yPos=0;yPos<gol_boardCellHeight;yPos++){
-          
-          // Check cells against rules
-
+      for(xPos=0;xPos<gol_boardCellWidth;xPos++){
+        for(yPos=0;yPos<gol_boardCellHeight;yPos++){
+          // Check if current cell is live
+          if(gol_lifeBoard2[yPos][xPos]===1){
+            if((n>3)||(n<2)){
+              gol_lifeBoard1[yPos][xPos] = 0; // Set next board to dead cell
+            }
+            gol_lifeBoard1[yPos][xPos] = 1; // Set next board to live cell
+          }
+          // Else cell is dead
+          if(n===3){
+            gol_lifeBoard1[yPos][xPos] = 1; // Set next board to live cell
+          }
+          gol_lifeBoard1[yPos][xPos] = 0; // Set next board to dead cell
         }
       }
       gol_board2isCurrent = false;
+      gol_clearLife(gol_lifeBoard2);
       gol_board1isCurrent = true;
     }
   }
 
   // Plays gol intro
   function gol_playIntro(){
-
+    ;
   }
 
   // Gol life loop
   function gol_playLife(){
-    // Cycle through board if not paused
-    // Check all cells against rules
-    while(!gol_isPaused){
-      gol_checkBoard();
-      gol_drawLife();
+    // If gol is not already playing, start it up
+    if(gol_isPaused){
+      clearInterval(gol_intervalId); // Clear any previously running gol
+      gol_isPaused = false;
+      gol_intervalId = setInterval(function(){
+        gol_checkBoard();
+        gol_drawLife();
+      }, gol_lifeSpeed);  
     }
+  }
+
+  // Pause gol
+  function gol_pauseLife() {
+    clearInterval(gol_intervalId);
+    gol_isPaused = true;
   }
 
   /////////////////////////////////////////////
@@ -176,25 +206,22 @@
     // If intro is over, or not chosen, turn off intro
     gol_shouldPlayIntro = false;
     gol_drawEmptyBoard();
-    gol_clearLife();
+    gol_clearLife(gol_lifeBoard1);
+    gol_clearLife(gol_lifeBoard2);
   };
   // Play current gol board
   gol.playLife = function(){
-    gol_isPaused = false;
     gol_playLife();
   };
   // Pause
   gol.pauseLife = function(){
-    gol_isPaused = true;
+    gol_pauseLife();
   };
   // Reset the board
   gol.clearLife = function(){
     gol_isPaused = true;
-    gol_clearLife();
-  };
-  // Play gol intro
-  gol.playIntro = function(){
-
+    gol_clearLife(gol_lifeBoard1);
+    gol_clearLife(gol_lifeBoard2);
   };
 
   // Customize gol
@@ -223,9 +250,9 @@
   gol.setIntro = function(newSetting){
     gol_shouldPlayIntro = false;
     if(newSetting===1){
-      gol_playIntro = true;
+      gol_shouldPlayIntro = true;
     }
-  }
+  };
 
   // Register the gol object to the global namespace
   window.gol = gol;
