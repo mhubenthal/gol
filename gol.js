@@ -63,34 +63,45 @@
 
   // Draw current board of life
   function gol_drawLife(){
+    var x=0, y=0;
     // Use board1 if current
     if(gol_board1isCurrent){
       for(var xPos=1;xPos<gol_backgroundWidth;xPos+=11){
+        y=0;
         for(var yPos=1;yPos<gol_backgroundHeight;yPos+=11){
           // Dead cell
-          if(gol_lifeBoard1[yPos][xPos] === 0){
-            gol_ctx.fillStyle = gol_backgroundColor;
+          if(gol_lifeBoard1[y][x] === 0){
+            gol_ctx.fillStyle = gol_cellColor;
             gol_ctx.fillRect(xPos,yPos,gol_cellSize,gol_cellSize);
           } 
           // Else live cell
-          gol_ctx.fillStyle = gol_cellColor;
-          gol_ctx.fillRect(xPos,yPos,gol_cellSize,gol_cellSize);
+          if(gol_lifeBoard1[y][x] === 1){
+            gol_ctx.fillStyle = gol_backgroundColor;
+            gol_ctx.fillRect(xPos,yPos,gol_cellSize,gol_cellSize);
+          }
+          y++;
         }
+        x++;
       }
     } 
     // Else, board2 is current 
     if(gol_board2isCurrent){
       for(xPos=1;xPos<gol_backgroundWidth;xPos+=11){
+        y=0;
         for(yPos=1;yPos<gol_backgroundHeight;yPos+=11){
           // Dead cell
-          if(gol_lifeBoard1[yPos][xPos] === 0){
-            gol_ctx.fillStyle = gol_backgroundColor;
+          if(gol_lifeBoard2[y][x] === 0){
+            gol_ctx.fillStyle = gol_cellColor;
             gol_ctx.fillRect(xPos,yPos,gol_cellSize,gol_cellSize);
           } 
           // Else live cell
-          gol_ctx.fillStyle = gol_cellColor;
-          gol_ctx.fillRect(xPos,yPos,gol_cellSize,gol_cellSize);
+          if(gol_lifeBoard2[y][x] === 1){
+            gol_ctx.fillStyle = gol_backgroundColor;
+            gol_ctx.fillRect(xPos,yPos,gol_cellSize,gol_cellSize);
+          }
+          y++;
         }
+        x++;
       }
     }
   } 
@@ -219,31 +230,29 @@
   };
   // Reset the board
   gol.clearLife = function(){
-    gol_isPaused = true;
+    gol_pauseLife();
     gol_clearLife(gol_lifeBoard1);
     gol_clearLife(gol_lifeBoard2);
   };
 
   // Customize gol
-  // Change grid color, takes a valid CSS color string
+  // Change grid color, takes a valid CSS color string, pauses game
   gol.setGridColor = function(newGridColor){
-    gol_isPaused = true;
+    gol_pauseLife();
     gol_backgroundColor = newGridColor;
-    gol_isPaused = false;
-    gol_playLife();
+    gol_drawBackground();
+    gol_drawLife();
+  };
+  // Change cell color, takes a valid CSS color string, pauses game
+  gol.setCellColor = function (newCellColor) {
+    gol_pauseLife();
+    gol_cellColor = newCellColor;
+    gol_drawLife();
   };
   // Change interval in ms of lifecycles
   gol.setLifeSpeed = function(newLifeSpeed){
-    gol_isPaused = true;
+    gol_pauseLife();
     gol_lifeSpeed = newLifeSpeed;
-    gol_isPaused = false;
-    gol_playLife();
-  };
-  // Change cell color, takes a valid CSS color string
-  gol.setCellColor = function (newCellColor) {
-    gol_isPaused = true;
-    gol_cellColor = newCellColor;
-    gol_isPaused = false;
     gol_playLife();
   };
   // Turn intro on/off, "1" = on, "0" = off
