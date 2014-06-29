@@ -219,6 +219,28 @@
     gol_drawEmptyBoard();
     gol_clearLife(gol_lifeBoard1);
     gol_clearLife(gol_lifeBoard2);
+    // Let user select initial live cells
+    gol_canvas.addEventListener("mousedown", getPosition, false);
+    function getPosition(event){
+      // Get mouse position
+      var x = event.x;
+      var y = event.y;
+      // Get x and y relative to canvas
+      x -= gol_canvas.offsetLeft;
+      y -= gol_canvas.offsetTop;
+      // Fill appropriate square at mouse click
+      var adjX = Math.floor(x/11) * 11 + 1;
+      var adjY = Math.floor(y/11) * 11 + 1;
+      // Fill selected square
+      gol_ctx.fillStyle = gol_backgroundColor;
+      gol_ctx.fillRect(adjX,adjY,gol_cellSize,gol_cellSize);
+      // Update board with user selected live cells
+      var colX = Math.floor(x/11);
+      if(x<12){colX=0;}
+      var rowY = Math.floor(y/11);
+      if(y<12){rowY=0;}
+      gol_lifeBoard1[rowY][colX] = 1;
+    }
   };
   // Play current gol board
   gol.playLife = function(){
@@ -233,6 +255,7 @@
     gol_pauseLife();
     gol_clearLife(gol_lifeBoard1);
     gol_clearLife(gol_lifeBoard2);
+    gol_drawLife();
   };
 
   // Customize gol
