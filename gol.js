@@ -26,7 +26,7 @@
   var gol_lifeBoard1 = [], gol_lifeBoard2 = [];
     
   // Set flag to start gol at board one
-  var gol_board1isCurrent = true, gol_board2isCurrent = false;
+  var gol_board1isCurrent = true;
   // Set default gol board and cell sizes and colors, and interval for speed of life
   // (Grid lines are drawn at 1px wide)
   var gol_backgroundColor = "black", gol_backgroundWidth, gol_backgroundHeight, gol_boardCellHeight = 30, gol_boardCellWidth = 60, gol_cellSize = 10, gol_cellColor = "white", gol_lifeSpeed = 100, gol_intervalId;
@@ -54,8 +54,8 @@
   // Draw complete board of dead(white) cells
   function gol_drawEmptyLife(){
     gol_ctx.fillStyle = gol_cellColor;
-    for(var xPos=1;xPos<gol_backgroundWidth;xPos+=11){
-      for(var yPos=1;yPos<gol_backgroundHeight;yPos+=11){
+    for(var xPos=1;xPos<gol_backgroundWidth;xPos+=(gol_cellSize+1)){
+      for(var yPos=1;yPos<gol_backgroundHeight;yPos+=(gol_cellSize+1)){
         gol_ctx.fillRect(xPos,yPos,gol_cellSize,gol_cellSize);
       }
     }
@@ -66,9 +66,9 @@
     var x=0, y=0;
     // Use board1 if current
     if(gol_board1isCurrent){
-      for(var xPos=1;xPos<gol_backgroundWidth;xPos+=11){
+      for(var xPos=1;xPos<gol_backgroundWidth;xPos+=(gol_cellSize+1)){
         y=0;
-        for(var yPos=1;yPos<gol_backgroundHeight;yPos+=11){
+        for(var yPos=1;yPos<gol_backgroundHeight;yPos+=(gol_cellSize+1)){
           // Dead cell
           if(gol_lifeBoard1[y][x] === 0){
             gol_ctx.fillStyle = gol_cellColor;
@@ -85,10 +85,10 @@
       }
     } 
     // Else, board2 is current 
-    if(gol_board2isCurrent){
-      for(xPos=1;xPos<gol_backgroundWidth;xPos+=11){
+    if(!gol_board1isCurrent){
+      for(xPos=1;xPos<gol_backgroundWidth;xPos+=(gol_cellSize+1)){
         y=0;
-        for(yPos=1;yPos<gol_backgroundHeight;yPos+=11){
+        for(yPos=1;yPos<gol_backgroundHeight;yPos+=(gol_cellSize+1)){
           // Dead cell
           if(gol_lifeBoard2[y][x] === 0){
             gol_ctx.fillStyle = gol_cellColor;
@@ -137,6 +137,62 @@
     if(gol_board1isCurrent){
       for(var xPos=0;xPos<gol_boardCellWidth;xPos++){
         for(var yPos=0;yPos<gol_boardCellHeight;yPos++){
+          // Get number of current live neighbors for cells not on perimeter of board
+          if(((xPos > 0)&&(yPos > 0))&&((xPos < (gol_boardCellWidth-1))&&(yPos < (gol_boardCellHeight-1)))){
+          if(gol_lifeBoard1[yPos-1][xPos-1]===1){n++;}
+          if(gol_lifeBoard1[yPos-1][xPos]===1){n++;}
+          if(gol_lifeBoard1[yPos-1][xPos+1]===1){n++;}
+          if(gol_lifeBoard1[yPos][xPos-1]===1){n++;}
+          if(gol_lifeBoard1[yPos][xPos+1]===1){n++;}
+          if(gol_lifeBoard1[yPos+1][xPos-1]===1){n++;}
+          if(gol_lifeBoard1[yPos+1][xPos]===1){n++;}
+          if(gol_lifeBoard1[yPos+1][xPos+1]===1){n++;}
+          }
+          // Get number of current live neighbors for cells on perimeter of board
+          if(((xPos === 0)||(yPos === 0))||((xPos === (gol_boardCellWidth-1))||(yPos === (gol_boardCellHeight-1)))){
+            // Cell in upper left corner
+            if((xPos === 0)&&(yPos === 0)){
+
+            }
+            // Cell in upper right corner
+            if(){
+
+            }
+            // Cell in lower right corner
+            if(){
+
+            }
+            // Cell in lower left corner
+            if(){
+
+            }
+            // Cell in top most row, not in a corner
+            if(){
+
+            }
+            // Cell in left most column, not in a corner
+            if(){
+
+            }
+            // Cell in bottom most row, not in a corner
+            if(){
+
+            }
+            // Cell in right most column, not in a corner
+            if(){
+              
+            }
+
+
+            if(gol_lifeBoard1[yPos-1][xPos-1]===1){n++;}
+            if(gol_lifeBoard1[yPos-1][xPos]===1){n++;}
+            if(gol_lifeBoard1[yPos-1][xPos+1]===1){n++;}
+            if(gol_lifeBoard1[yPos][xPos-1]===1){n++;}
+            if(gol_lifeBoard1[yPos][xPos+1]===1){n++;}
+            if(gol_lifeBoard1[yPos+1][xPos-1]===1){n++;}
+            if(gol_lifeBoard1[yPos+1][xPos]===1){n++;}
+            if(gol_lifeBoard1[yPos+1][xPos+1]===1){n++;}
+          }
           // Check if current cell is live
           if(gol_lifeBoard1[yPos][xPos]===1){
             if((n>3)||(n<2)){
@@ -150,15 +206,25 @@
           }
           gol_lifeBoard2[yPos][xPos] = 0; // Set next board to dead cell
         }
+        n=0;
       }
-      gol_board1isCurrent = false;
       gol_clearLife(gol_lifeBoard1);
-      gol_board2isCurrent = true;
     }
     // Else board 2 is current
-    if(gol_board2isCurrent){
+    if(!gol_board1isCurrent){
       for(xPos=0;xPos<gol_boardCellWidth;xPos++){
         for(yPos=0;yPos<gol_boardCellHeight;yPos++){
+          // Get number of current live neighbors
+          if(((xPos > 1)&&(yPos > 1))&&((xPos < (gol_boardCellWidth-2))&&(yPos < (gol_boardCellHeight-2)))){
+          if(gol_lifeBoard1[yPos-1][xPos-1]===1){n++;}
+          if(gol_lifeBoard1[yPos-1][xPos]===1){n++;}
+          if(gol_lifeBoard1[yPos-1][xPos+1]===1){n++;}
+          if(gol_lifeBoard1[yPos][xPos-1]===1){n++;}
+          if(gol_lifeBoard1[yPos][xPos+1]===1){n++;}
+          if(gol_lifeBoard1[yPos+1][xPos-1]===1){n++;}
+          if(gol_lifeBoard1[yPos+1][xPos]===1){n++;}
+          if(gol_lifeBoard1[yPos+1][xPos+1]===1){n++;}
+          }
           // Check if current cell is live
           if(gol_lifeBoard2[yPos][xPos]===1){
             if((n>3)||(n<2)){
@@ -172,11 +238,12 @@
           }
           gol_lifeBoard1[yPos][xPos] = 0; // Set next board to dead cell
         }
+        n=0;
       }
-      gol_board2isCurrent = false;
       gol_clearLife(gol_lifeBoard2);
-      gol_board1isCurrent = true;
     }
+    // Reset current board
+    gol_board1isCurrent = !gol_board1isCurrent;
   }
 
   // Plays gol intro
@@ -229,16 +296,16 @@
       x -= gol_canvas.offsetLeft;
       y -= gol_canvas.offsetTop;
       // Fill appropriate square at mouse click
-      var adjX = Math.floor(x/11) * 11 + 1;
-      var adjY = Math.floor(y/11) * 11 + 1;
+      var adjX = Math.floor(x/(gol_cellSize+1)) * (gol_cellSize+1) + 1;
+      var adjY = Math.floor(y/(gol_cellSize+1)) * (gol_cellSize+1) + 1;
       // Fill selected square
       gol_ctx.fillStyle = gol_backgroundColor;
       gol_ctx.fillRect(adjX,adjY,gol_cellSize,gol_cellSize);
       // Update board with user selected live cells
-      var colX = Math.floor(x/11);
-      if(x<12){colX=0;}
-      var rowY = Math.floor(y/11);
-      if(y<12){rowY=0;}
+      var colX = Math.floor(x/(gol_cellSize+1));
+      if(x<(gol_cellSize+2)){colX=0;}
+      var rowY = Math.floor(y/(gol_cellSize+1));
+      if(y<(gol_cellSize+2)){rowY=0;}
       gol_lifeBoard1[rowY][colX] = 1;
     }
   };
