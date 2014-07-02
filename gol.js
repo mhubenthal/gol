@@ -195,7 +195,6 @@
               if(gol_lifeBoard1[yPos+1][xPos]===1){n++;}
               if(gol_lifeBoard1[yPos+1][xPos+1]===1){n++;}
             }
-            
             // Cell in bottom most row, not in a corner
             if(((xPos > 0)&&(yPos === (gol_boardCellHeight-1)))&&(xPos < gol_boardCellWidth-1)){
               if(gol_lifeBoard1[yPos-1][xPos-1]===1){n++;}
@@ -246,13 +245,19 @@
             if((n>3)||(n<2)){
               gol_lifeBoard2[yPos][xPos] = 0; // Set next board to dead cell
             }
-            gol_lifeBoard2[yPos][xPos] = 1; // Set next board to live cell
+            if((n===3)||(n===2)){
+              gol_lifeBoard2[yPos][xPos] = 1; // Set next board to live cell
+            }
           }
           // Else cell is dead
-          if(n===3){
-            gol_lifeBoard2[yPos][xPos] = 1; // Set next board to live cell
+          if(gol_lifeBoard1[yPos][xPos]===0){
+            if(n===3){
+              gol_lifeBoard2[yPos][xPos] = 1; // Set next board to live cell
+            }
+            if(n!==3){
+              gol_lifeBoard2[yPos][xPos] = 0; // Set next board to dead cell
+            }
           }
-          gol_lifeBoard2[yPos][xPos] = 0; // Set next board to dead cell
         }
       }
       gol_clearLife(gol_lifeBoard1);
@@ -370,13 +375,19 @@
             if((n>3)||(n<2)){
               gol_lifeBoard1[yPos][xPos] = 0; // Set next board to dead cell
             }
-            gol_lifeBoard1[yPos][xPos] = 1; // Set next board to live cell
+            if((n===3)||(n===2)){
+              gol_lifeBoard1[yPos][xPos] = 1; // Set next board to live cell
+            }
           }
           // Else cell is dead
-          if(n===3){
-            gol_lifeBoard1[yPos][xPos] = 1; // Set next board to live cell
+          if(gol_lifeBoard2[yPos][xPos]===0){
+            if(n===3){
+              gol_lifeBoard1[yPos][xPos] = 1; // Set next board to live cell
+            }
+            if(n!==3){
+              gol_lifeBoard1[yPos][xPos] = 0; // Set next board to dead cell
+            }
           }
-          gol_lifeBoard1[yPos][xPos] = 0; // Set next board to dead cell
         }
       }
       gol_clearLife(gol_lifeBoard2);
