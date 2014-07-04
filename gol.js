@@ -29,7 +29,7 @@
   var gol_board1isCurrent = true;
   // Set default gol board and cell sizes and colors, and interval for speed of life
   // (Grid lines are drawn at 1px wide)
-  var gol_backgroundColor = "black", gol_backgroundWidth, gol_backgroundHeight, gol_boardCellHeight = 30, gol_boardCellWidth = 60, gol_cellSize = 10, gol_cellColor = "white", gol_lifeSpeed = 100, gol_intervalId;
+  var gol_backgroundColor = "black", gol_backgroundWidth, gol_backgroundHeight, gol_boardCellHeight = 30, gol_boardCellWidth = 60, gol_cellSize = 10, gol_cellColor = "white", gol_lifeSpeed = 250, gol_intervalId;
   // Set offset values for gol origin
   var gol_originX = 0, gol_originY = 0;
   // Set default canvas size
