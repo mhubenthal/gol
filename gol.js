@@ -122,6 +122,117 @@
     }
   }
 
+  // Get number of live neighbors, looking at the grid as a toroidal sphere
+  function gol_getNeighborCount(array,y,x){
+    var liveNabes = 0;
+    // Check north
+    function checkNorth(){
+      if(y===0){
+        liveNabes += array.slice(y-1)[0][x];
+      }
+      if(y!==0){
+        liveNabes += array.slice(y-1,y)[0][x];
+      } 
+    }
+    // Check south
+    function checkSouth(){
+      if(y===array.length-1){
+        liveNabes += array.slice(0,1)[0][x];
+      }
+      if(y!==array.length-1){
+        liveNabes += array.slice(y+1,y+2)[0][x];
+      }
+    } 
+    // Check west
+    function checkWest(){
+      if(x===0){
+        liveNabes += array[y][array.length-1];
+      }
+      if(x!==0){
+        liveNabes += array[y][x+1];
+      } 
+    } 
+    // Check east
+    function checkEast(){
+      if(x===array.length-1){
+        liveNabes += array[y][0];
+      }
+      if(x!==array.length-1){
+        liveNabes += array[y][x+1];
+      }  
+    }
+    // Check northwest
+    function checkNorthwest(){
+      if(y===0 && x!==0){
+        liveNabes += array.slice(y-1)[0][x-1];
+      }
+      if(y!==0 && x!==0){
+        liveNabes += array[y-1][x-1];
+      } 
+      if(y===0 && x===0){
+        liveNabes += array[array.length-1][array.length-1];
+      }
+      if(y!==0 && x===0){
+        liveNabes += array[y-1][array.length-1];
+      } 
+    }
+    // Check northeast
+    function checkNortheast(){
+      if(y===0 && x!==array.length-1){
+        liveNabes += array[array.length-1][x+1];
+      }
+      if(y!==0 && x!==array.length-1){
+        liveNabes += array[y-1][x+1];
+      } 
+      if(y===0 && x===array.length-1){
+        liveNabes += array[array.length-1][0];
+      }
+      if(y!==0 && x===array.length-1){
+        liveNabes += array[y-1][0];
+      } 
+    }
+    // Check southwest
+    function checkSouthwest(){
+      if(y!==array.length-1 && x!==0){
+        liveNabes += array[y+1][x-1];
+      }
+      if(y!==array.length-1 && x===0){
+        liveNabes += array[y+1][array.length-1];
+      } 
+      if(y===array.length-1 && x===array.length-1){
+        liveNabes += array[0][array.length-1];
+      }
+      if(y===array.length-1 && x!==0){
+        liveNabes += array[0][x-1];
+      }
+    }
+    // Check southeast
+    function checkSoutheast(){
+      if(y!==array.length-1 && x!==array.length-1){
+        liveNabes += array[y+1][x+1];
+      }
+      if(y!==array.length-1 && x===array.length-1){
+        liveNabes += array[y+1][0];
+      }
+      if(y===array.length-1 && x===array.length-1){
+        liveNabes += array[0][0];
+      }
+      if(y===array.length-1 && x!==array.length-1){
+        liveNabes += array[0][x+1];
+      }
+    }
+    // Check cardinal directions
+    checkNorth();
+    checkSouth();
+    checkWest();
+    checkEast();
+    checkNorthwest();
+    checkNortheast();
+    checkSouthwest();
+    checkSoutheast();
+    return liveNabes;
+  }
+
   // Check current board agains rules for Conway's
   // game of life and change next board accordingly.
   //    Conway's Game of Life rules (Wikipedia):
@@ -137,109 +248,112 @@
     if(gol_board1isCurrent){
       for(var xPos=0;xPos<gol_boardCellWidth;xPos++){
         for(var yPos=0;yPos<gol_boardCellHeight;yPos++){
-          n=0;
+          n = 0;
+          n = gol_getNeighborCount(gol_lifeBoard1, yPos, xPos);
+          /*n=0;
           // Get number of current live neighbors for cells not on perimeter of board
           if(((xPos > 0)&&(yPos > 0))&&((xPos < (gol_boardCellWidth-1))&&(yPos < (gol_boardCellHeight-1)))){
-            if(gol_lifeBoard1[yPos-1][xPos-1]===1){n++;}
-            if(gol_lifeBoard1[yPos-1][xPos]===1){n++;}
-            if(gol_lifeBoard1[yPos-1][xPos+1]===1){n++;}
-            if(gol_lifeBoard1[yPos][xPos-1]===1){n++;}
-            if(gol_lifeBoard1[yPos][xPos+1]===1){n++;}
-            if(gol_lifeBoard1[yPos+1][xPos-1]===1){n++;}
-            if(gol_lifeBoard1[yPos+1][xPos]===1){n++;}
-            if(gol_lifeBoard1[yPos+1][xPos+1]===1){n++;}
+            if(gol_lifeBoard1[yPos-1][xPos-1]===1){n++;} // NW
+            if(gol_lifeBoard1[yPos-1][xPos]===1){n++;} // N
+            if(gol_lifeBoard1[yPos-1][xPos+1]===1){n++;} // NE
+            if(gol_lifeBoard1[yPos][xPos-1]===1){n++;} // W
+            if(gol_lifeBoard1[yPos][xPos+1]===1){n++;} // E
+            if(gol_lifeBoard1[yPos+1][xPos-1]===1){n++;} // SW
+            if(gol_lifeBoard1[yPos+1][xPos]===1){n++;} // S
+            if(gol_lifeBoard1[yPos+1][xPos+1]===1){n++;} // SE
           }
           // Get number of current live neighbors for cells on perimeter of board
           if(((xPos === 0)||(yPos === 0))||((xPos === (gol_boardCellWidth-1))||(yPos === (gol_boardCellHeight-1)))){
             // Cell in upper left corner
             if((xPos === 0)&&(yPos === 0)){
-              if(gol_lifeBoard1[gol_boardCellHeight-1][gol_boardCellWidth-1]===1){n++;}
-              if(gol_lifeBoard1[gol_boardCellHeight-1][xPos]===1){n++;}
-              if(gol_lifeBoard1[gol_boardCellHeight-1][xPos+1]===1){n++;}
-              if(gol_lifeBoard1[yPos][gol_boardCellWidth-1]===1){n++;}
-              if(gol_lifeBoard1[yPos][xPos+1]===1){n++;}
-              if(gol_lifeBoard1[yPos+1][gol_boardCellWidth-1]===1){n++;}
-              if(gol_lifeBoard1[yPos+1][xPos]===1){n++;}
-              if(gol_lifeBoard1[yPos+1][xPos+1]===1){n++;}
+              if(gol_lifeBoard1[gol_boardCellHeight-1][gol_boardCellWidth-1]===1){n++;} // NW
+              if(gol_lifeBoard1[gol_boardCellHeight-1][xPos]===1){n++;} // N
+              if(gol_lifeBoard1[gol_boardCellHeight-1][xPos+1]===1){n++;} // NE
+              if(gol_lifeBoard1[yPos][gol_boardCellWidth-1]===1){n++;} // W
+              if(gol_lifeBoard1[yPos][xPos+1]===1){n++;} // E
+              if(gol_lifeBoard1[yPos+1][gol_boardCellWidth-1]===1){n++;} // SW
+              if(gol_lifeBoard1[yPos+1][xPos]===1){n++;} // S
+              if(gol_lifeBoard1[yPos+1][xPos+1]===1){n++;} // SE
             }
             // Cell in left most column, not in a corner
             if(((xPos === 0)&&(yPos > 0))&&(yPos < gol_boardCellHeight-1)){
-              if(gol_lifeBoard1[gol_boardCellHeight-1][xPos-1]===1){n++;}
-              if(gol_lifeBoard1[yPos-1][xPos]===1){n++;}
-              if(gol_lifeBoard1[yPos-1][xPos+1]===1){n++;}
-              if(gol_lifeBoard1[yPos][gol_boardCellWidth-1]===1){n++;}
-              if(gol_lifeBoard1[yPos][xPos+1]===1){n++;}
-              if(gol_lifeBoard1[yPos+1][gol_boardCellWidth-1]===1){n++;}
-              if(gol_lifeBoard1[yPos+1][xPos]===1){n++;}
-              if(gol_lifeBoard1[yPos+1][xPos+1]===1){n++;}
+              if(gol_lifeBoard1[gol_boardCellHeight-1][xPos-1]===1){n++;} // NW
+              if(gol_lifeBoard1[yPos-1][xPos]===1){n++;} // N
+              if(gol_lifeBoard1[yPos-1][xPos+1]===1){n++;} // NE
+              if(gol_lifeBoard1[yPos][gol_boardCellWidth-1]===1){n++;} // W
+              if(gol_lifeBoard1[yPos][xPos+1]===1){n++;} // E
+              if(gol_lifeBoard1[yPos+1][gol_boardCellWidth-1]===1){n++;} // SW
+              if(gol_lifeBoard1[yPos+1][xPos]===1){n++;} // S
+              if(gol_lifeBoard1[yPos+1][xPos+1]===1){n++;} // SE
             }
             // Cell in lower left corner
             if((xPos === 0)&&(yPos === (gol_boardCellHeight-1))){
-              if(gol_lifeBoard1[yPos-1][gol_boardCellWidth-1]===1){n++;}
-              if(gol_lifeBoard1[yPos-1][xPos]===1){n++;}
-              if(gol_lifeBoard1[yPos-1][xPos+1]===1){n++;}
-              if(gol_lifeBoard1[yPos][gol_boardCellWidth-1]===1){n++;}
-              if(gol_lifeBoard1[yPos][xPos+1]===1){n++;}
-              if(gol_lifeBoard1[0][gol_boardCellWidth-1]===1){n++;}
-              if(gol_lifeBoard1[0][xPos]===1){n++;}
-              if(gol_lifeBoard1[0][xPos+1]===1){n++;}
+              if(gol_lifeBoard1[yPos-1][gol_boardCellWidth-1]===1){n++;} // NW
+              if(gol_lifeBoard1[yPos-1][xPos]===1){n++;} // N
+              if(gol_lifeBoard1[yPos-1][xPos+1]===1){n++;} // NE
+              if(gol_lifeBoard1[yPos][gol_boardCellWidth-1]===1){n++;} // W
+              if(gol_lifeBoard1[yPos][xPos+1]===1){n++;} // E
+              if(gol_lifeBoard1[0][gol_boardCellWidth-1]===1){n++;} // SW
+              if(gol_lifeBoard1[0][xPos]===1){n++;} // S
+              if(gol_lifeBoard1[0][xPos+1]===1){n++;} // SE
             }
             // Cell in top most row, not in a corner
             if(((xPos > 0)&&(yPos === 0))&&(xPos < gol_boardCellWidth-1)){
-              if(gol_lifeBoard1[gol_boardCellHeight-1][xPos-1]===1){n++;}
-              if(gol_lifeBoard1[gol_boardCellHeight-1][xPos]===1){n++;}
-              if(gol_lifeBoard1[gol_boardCellHeight-1][xPos+1]===1){n++;}
-              if(gol_lifeBoard1[yPos][xPos-1]===1){n++;}
-              if(gol_lifeBoard1[yPos][xPos+1]===1){n++;}
-              if(gol_lifeBoard1[yPos+1][xPos-1]===1){n++;}
-              if(gol_lifeBoard1[yPos+1][xPos]===1){n++;}
-              if(gol_lifeBoard1[yPos+1][xPos+1]===1){n++;}
+              if(gol_lifeBoard1[gol_boardCellHeight-1][xPos-1]===1){n++;} // NW
+              if(gol_lifeBoard1[gol_boardCellHeight-1][xPos]===1){n++;} // N
+              if(gol_lifeBoard1[gol_boardCellHeight-1][xPos+1]===1){n++;} // NE
+              if(gol_lifeBoard1[yPos][xPos-1]===1){n++;} // W
+              if(gol_lifeBoard1[yPos][xPos+1]===1){n++;} // E
+              if(gol_lifeBoard1[yPos+1][xPos-1]===1){n++;} // SW
+              if(gol_lifeBoard1[yPos+1][xPos]===1){n++;} // S
+              if(gol_lifeBoard1[yPos+1][xPos+1]===1){n++;} // SE
             }
             // Cell in bottom most row, not in a corner
             if(((xPos > 0)&&(yPos === (gol_boardCellHeight-1)))&&(xPos < gol_boardCellWidth-1)){
-              if(gol_lifeBoard1[yPos-1][xPos-1]===1){n++;}
-              if(gol_lifeBoard1[yPos-1][xPos]===1){n++;}
-              if(gol_lifeBoard1[yPos-1][xPos+1]===1){n++;}
-              if(gol_lifeBoard1[yPos][xPos-1]===1){n++;}
-              if(gol_lifeBoard1[yPos][xPos+1]===1){n++;}
-              if(gol_lifeBoard1[0][xPos-1]===1){n++;}
-              if(gol_lifeBoard1[0][xPos]===1){n++;}
-              if(gol_lifeBoard1[0][xPos+1]===1){n++;}
+              if(gol_lifeBoard1[yPos-1][xPos-1]===1){n++;} // NW
+              if(gol_lifeBoard1[yPos-1][xPos]===1){n++;} // N
+              if(gol_lifeBoard1[yPos-1][xPos+1]===1){n++;} // NE
+              if(gol_lifeBoard1[yPos][xPos-1]===1){n++;} // W
+              if(gol_lifeBoard1[yPos][xPos+1]===1){n++;} // E
+              if(gol_lifeBoard1[0][xPos-1]===1){n++;} // SW
+              if(gol_lifeBoard1[0][xPos]===1){n++;} // S
+              if(gol_lifeBoard1[0][xPos+1]===1){n++;} // SE
             }
             // Cell in upper right corner
             if((xPos === (gol_boardCellWidth-1))&&(yPos === 0)){
-              if(gol_lifeBoard1[gol_boardCellHeight-1][xPos-1]===1){n++;}
-              if(gol_lifeBoard1[gol_boardCellHeight-1][xPos]===1){n++;}
-              if(gol_lifeBoard1[gol_boardCellHeight-1][0]===1){n++;}
-              if(gol_lifeBoard1[yPos][xPos-1]===1){n++;}
-              if(gol_lifeBoard1[yPos][0]===1){n++;}
-              if(gol_lifeBoard1[yPos+1][xPos-1]===1){n++;}
-              if(gol_lifeBoard1[yPos+1][xPos]===1){n++;}
-              if(gol_lifeBoard1[yPos+1][0]===1){n++;}
+              if(gol_lifeBoard1[gol_boardCellHeight-1][xPos-1]===1){n++;} // NW
+              if(gol_lifeBoard1[gol_boardCellHeight-1][xPos]===1){n++;} // N
+              if(gol_lifeBoard1[gol_boardCellHeight-1][0]===1){n++;} // NE
+              if(gol_lifeBoard1[yPos][xPos-1]===1){n++;} // W
+              if(gol_lifeBoard1[yPos][0]===1){n++;} // E
+              if(gol_lifeBoard1[yPos+1][xPos-1]===1){n++;} // SW
+              if(gol_lifeBoard1[yPos+1][xPos]===1){n++;} // S
+              if(gol_lifeBoard1[yPos+1][0]===1){n++;} // SE
             }
             // Cell in right most column, not in a corner
             if(((xPos === (gol_boardCellWidth-1))&&(yPos > 0))&&(yPos < gol_boardCellHeight-1)){
-              if(gol_lifeBoard1[yPos-1][xPos-1]===1){n++;}
-              if(gol_lifeBoard1[yPos-1][xPos]===1){n++;}
-              if(gol_lifeBoard1[yPos-1][0]===1){n++;}
-              if(gol_lifeBoard1[yPos][xPos-1]===1){n++;}
-              if(gol_lifeBoard1[yPos][0]===1){n++;}
-              if(gol_lifeBoard1[yPos+1][xPos-1]===1){n++;}
-              if(gol_lifeBoard1[yPos+1][xPos]===1){n++;}
-              if(gol_lifeBoard1[yPos+1][0]===1){n++;}
+              if(gol_lifeBoard1[yPos-1][xPos-1]===1){n++;} // NW
+              if(gol_lifeBoard1[yPos-1][xPos]===1){n++;} // N
+              if(gol_lifeBoard1[yPos-1][0]===1){n++;} // NE
+              if(gol_lifeBoard1[yPos][xPos-1]===1){n++;} // W
+              if(gol_lifeBoard1[yPos][0]===1){n++;} // E
+              if(gol_lifeBoard1[yPos+1][xPos-1]===1){n++;} // SW
+              if(gol_lifeBoard1[yPos+1][xPos]===1){n++;} // S
+              if(gol_lifeBoard1[yPos+1][0]===1){n++;} // SE
             }
             // Cell in lower right corner
             if((xPos === (gol_boardCellWidth-1))&&(yPos === (gol_boardCellHeight-1))){
-              if(gol_lifeBoard1[yPos-1][xPos-1]===1){n++;}
-              if(gol_lifeBoard1[yPos-1][xPos]===1){n++;}
-              if(gol_lifeBoard1[yPos-1][0]===1){n++;}
-              if(gol_lifeBoard1[yPos][xPos-1]===1){n++;}
-              if(gol_lifeBoard1[yPos][0]===1){n++;}
-              if(gol_lifeBoard1[0][xPos-1]===1){n++;}
-              if(gol_lifeBoard1[0][xPos]===1){n++;}
-              if(gol_lifeBoard1[0][0]===1){n++;}
+              if(gol_lifeBoard1[yPos-1][xPos-1]===1){n++;} // NW
+              if(gol_lifeBoard1[yPos-1][xPos]===1){n++;} // N
+              if(gol_lifeBoard1[yPos-1][0]===1){n++;} // NE
+              if(gol_lifeBoard1[yPos][xPos-1]===1){n++;} // W
+              if(gol_lifeBoard1[yPos][0]===1){n++;} // E
+              if(gol_lifeBoard1[0][xPos-1]===1){n++;} // SW
+              if(gol_lifeBoard1[0][xPos]===1){n++;} // S
+              if(gol_lifeBoard1[0][0]===1){n++;} // SE
             }
           }
+          */
           // Check if current cell is live
           if(gol_lifeBoard1[yPos][xPos]===1){
             if((n>3)||(n<2)){
@@ -267,109 +381,112 @@
       for(xPos=0;xPos<gol_boardCellWidth;xPos++){
         for(yPos=0;yPos<gol_boardCellHeight;yPos++){
           n=0;
+          n = gol_getNeighborCount(gol_lifeBoard2, yPos, xPos);
+          /*
           // Get number of current live neighbors
           if(((xPos > 1)&&(yPos > 1))&&((xPos < (gol_boardCellWidth-2))&&(yPos < (gol_boardCellHeight-2)))){
-            if(gol_lifeBoard2[yPos-1][xPos-1]===1){n++;}
-            if(gol_lifeBoard2[yPos-1][xPos]===1){n++;}
-            if(gol_lifeBoard2[yPos-1][xPos+1]===1){n++;}
-            if(gol_lifeBoard2[yPos][xPos-1]===1){n++;}
-            if(gol_lifeBoard2[yPos][xPos+1]===1){n++;}
-            if(gol_lifeBoard2[yPos+1][xPos-1]===1){n++;}
-            if(gol_lifeBoard2[yPos+1][xPos]===1){n++;}
-            if(gol_lifeBoard2[yPos+1][xPos+1]===1){n++;}
+            if(gol_lifeBoard2[yPos-1][xPos-1]===1){n++;} // NW
+            if(gol_lifeBoard2[yPos-1][xPos]===1){n++;} // N
+            if(gol_lifeBoard2[yPos-1][xPos+1]===1){n++;} // NE
+            if(gol_lifeBoard2[yPos][xPos-1]===1){n++;} // W
+            if(gol_lifeBoard2[yPos][xPos+1]===1){n++;} // E
+            if(gol_lifeBoard2[yPos+1][xPos-1]===1){n++;} // SW
+            if(gol_lifeBoard2[yPos+1][xPos]===1){n++;} // S
+            if(gol_lifeBoard2[yPos+1][xPos+1]===1){n++;} // SE
           }
           // Get number of current live neighbors for cells on perimeter of board
           if(((xPos === 0)||(yPos === 0))||((xPos === (gol_boardCellWidth-1))||(yPos === (gol_boardCellHeight-1)))){
             // Cell in upper left corner
             if((xPos === 0)&&(yPos === 0)){
-              if(gol_lifeBoard2[gol_boardCellHeight-1][gol_boardCellWidth-1]===1){n++;}
-              if(gol_lifeBoard2[gol_boardCellHeight-1][xPos]===1){n++;}
-              if(gol_lifeBoard2[gol_boardCellHeight-1][xPos+1]===1){n++;}
-              if(gol_lifeBoard2[yPos][gol_boardCellWidth-1]===1){n++;}
-              if(gol_lifeBoard2[yPos][xPos+1]===1){n++;}
-              if(gol_lifeBoard2[yPos+1][gol_boardCellWidth-1]===1){n++;}
-              if(gol_lifeBoard2[yPos+1][xPos]===1){n++;}
-              if(gol_lifeBoard2[yPos+1][xPos+1]===1){n++;}
+              if(gol_lifeBoard2[gol_boardCellHeight-1][gol_boardCellWidth-1]===1){n++;} // NW
+              if(gol_lifeBoard2[gol_boardCellHeight-1][xPos]===1){n++;} // N
+              if(gol_lifeBoard2[gol_boardCellHeight-1][xPos+1]===1){n++;} // NE
+              if(gol_lifeBoard2[yPos][gol_boardCellWidth-1]===1){n++;} // W
+              if(gol_lifeBoard2[yPos][xPos+1]===1){n++;} // E
+              if(gol_lifeBoard2[yPos+1][gol_boardCellWidth-1]===1){n++;} // SW
+              if(gol_lifeBoard2[yPos+1][xPos]===1){n++;} // S
+              if(gol_lifeBoard2[yPos+1][xPos+1]===1){n++;} // SE
             }
             // Cell in left most column, not in a corner
             if(((xPos === 0)&&(yPos > 0))&&(yPos < gol_boardCellHeight-1)){
-              if(gol_lifeBoard2[gol_boardCellHeight-1][xPos-1]===1){n++;}
-              if(gol_lifeBoard2[yPos-1][xPos]===1){n++;}
-              if(gol_lifeBoard2[yPos-1][xPos+1]===1){n++;}
-              if(gol_lifeBoard2[yPos][gol_boardCellWidth-1]===1){n++;}
-              if(gol_lifeBoard2[yPos][xPos+1]===1){n++;}
-              if(gol_lifeBoard2[yPos+1][gol_boardCellWidth-1]===1){n++;}
-              if(gol_lifeBoard2[yPos+1][xPos]===1){n++;}
-              if(gol_lifeBoard2[yPos+1][xPos+1]===1){n++;}
+              if(gol_lifeBoard2[gol_boardCellHeight-1][xPos-1]===1){n++;} // NW
+              if(gol_lifeBoard2[yPos-1][xPos]===1){n++;} // N
+              if(gol_lifeBoard2[yPos-1][xPos+1]===1){n++;} // NE
+              if(gol_lifeBoard2[yPos][gol_boardCellWidth-1]===1){n++;} // W
+              if(gol_lifeBoard2[yPos][xPos+1]===1){n++;} // E
+              if(gol_lifeBoard2[yPos+1][gol_boardCellWidth-1]===1){n++;} // SW
+              if(gol_lifeBoard2[yPos+1][xPos]===1){n++;} // S
+              if(gol_lifeBoard2[yPos+1][xPos+1]===1){n++;} // SE
             }
             // Cell in lower left corner
             if((xPos === 0)&&(yPos === (gol_boardCellHeight-1))){
-              if(gol_lifeBoard2[yPos-1][gol_boardCellWidth-1]===1){n++;}
-              if(gol_lifeBoard2[yPos-1][xPos]===1){n++;}
-              if(gol_lifeBoard2[yPos-1][xPos+1]===1){n++;}
-              if(gol_lifeBoard2[yPos][gol_boardCellWidth-1]===1){n++;}
-              if(gol_lifeBoard2[yPos][xPos+1]===1){n++;}
-              if(gol_lifeBoard2[0][gol_boardCellWidth-1]===1){n++;}
-              if(gol_lifeBoard2[0][xPos]===1){n++;}
-              if(gol_lifeBoard2[0][xPos+1]===1){n++;}
+              if(gol_lifeBoard2[yPos-1][gol_boardCellWidth-1]===1){n++;} // NW
+              if(gol_lifeBoard2[yPos-1][xPos]===1){n++;} // N
+              if(gol_lifeBoard2[yPos-1][xPos+1]===1){n++;} // NE
+              if(gol_lifeBoard2[yPos][gol_boardCellWidth-1]===1){n++;} // W
+              if(gol_lifeBoard2[yPos][xPos+1]===1){n++;} // E
+              if(gol_lifeBoard2[0][gol_boardCellWidth-1]===1){n++;} // SW
+              if(gol_lifeBoard2[0][xPos]===1){n++;} // S
+              if(gol_lifeBoard2[0][xPos+1]===1){n++;} // SE
             }
             // Cell in top most row, not in a corner
             if(((xPos > 0)&&(yPos === 0))&&(xPos < gol_boardCellWidth-1)){
-              if(gol_lifeBoard2[gol_boardCellHeight-1][xPos-1]===1){n++;}
-              if(gol_lifeBoard2[gol_boardCellHeight-1][xPos]===1){n++;}
-              if(gol_lifeBoard2[gol_boardCellHeight-1][xPos+1]===1){n++;}
-              if(gol_lifeBoard2[yPos][xPos-1]===1){n++;}
-              if(gol_lifeBoard2[yPos][xPos+1]===1){n++;}
-              if(gol_lifeBoard2[yPos+1][xPos-1]===1){n++;}
-              if(gol_lifeBoard2[yPos+1][xPos]===1){n++;}
-              if(gol_lifeBoard2[yPos+1][xPos+1]===1){n++;}
+              if(gol_lifeBoard2[gol_boardCellHeight-1][xPos-1]===1){n++;} // NW
+              if(gol_lifeBoard2[gol_boardCellHeight-1][xPos]===1){n++;} // N
+              if(gol_lifeBoard2[gol_boardCellHeight-1][xPos+1]===1){n++;} // NE
+              if(gol_lifeBoard2[yPos][xPos-1]===1){n++;} // W
+              if(gol_lifeBoard2[yPos][xPos+1]===1){n++;} // E
+              if(gol_lifeBoard2[yPos+1][xPos-1]===1){n++;} // SW
+              if(gol_lifeBoard2[yPos+1][xPos]===1){n++;} // S
+              if(gol_lifeBoard2[yPos+1][xPos+1]===1){n++;} // SE
             }
             
             // Cell in bottom most row, not in a corner
             if(((xPos > 0)&&(yPos === (gol_boardCellHeight-1)))&&(xPos < gol_boardCellWidth-1)){
-              if(gol_lifeBoard2[yPos-1][xPos-1]===1){n++;}
-              if(gol_lifeBoard2[yPos-1][xPos]===1){n++;}
-              if(gol_lifeBoard2[yPos-1][xPos+1]===1){n++;}
-              if(gol_lifeBoard2[yPos][xPos-1]===1){n++;}
-              if(gol_lifeBoard2[yPos][xPos+1]===1){n++;}
-              if(gol_lifeBoard2[0][xPos-1]===1){n++;}
-              if(gol_lifeBoard2[0][xPos]===1){n++;}
-              if(gol_lifeBoard2[0][xPos+1]===1){n++;}
+              if(gol_lifeBoard2[yPos-1][xPos-1]===1){n++;} // NW
+              if(gol_lifeBoard2[yPos-1][xPos]===1){n++;} // N
+              if(gol_lifeBoard2[yPos-1][xPos+1]===1){n++;} // NE
+              if(gol_lifeBoard2[yPos][xPos-1]===1){n++;} // W
+              if(gol_lifeBoard2[yPos][xPos+1]===1){n++;} // E
+              if(gol_lifeBoard2[0][xPos-1]===1){n++;} // SW
+              if(gol_lifeBoard2[0][xPos]===1){n++;} // S
+              if(gol_lifeBoard2[0][xPos+1]===1){n++;} // SE
             }
             // Cell in upper right corner
             if((xPos === (gol_boardCellWidth-1))&&(yPos === 0)){
-              if(gol_lifeBoard2[gol_boardCellHeight-1][xPos-1]===1){n++;}
-              if(gol_lifeBoard2[gol_boardCellHeight-1][xPos]===1){n++;}
-              if(gol_lifeBoard2[gol_boardCellHeight-1][0]===1){n++;}
-              if(gol_lifeBoard2[yPos][xPos-1]===1){n++;}
-              if(gol_lifeBoard2[yPos][0]===1){n++;}
-              if(gol_lifeBoard2[yPos+1][xPos-1]===1){n++;}
-              if(gol_lifeBoard2[yPos+1][xPos]===1){n++;}
-              if(gol_lifeBoard2[yPos+1][0]===1){n++;}
+              if(gol_lifeBoard2[gol_boardCellHeight-1][xPos-1]===1){n++;} // NW
+              if(gol_lifeBoard2[gol_boardCellHeight-1][xPos]===1){n++;} // N
+              if(gol_lifeBoard2[gol_boardCellHeight-1][0]===1){n++;} // NE
+              if(gol_lifeBoard2[yPos][xPos-1]===1){n++;} // W
+              if(gol_lifeBoard2[yPos][0]===1){n++;} // E
+              if(gol_lifeBoard2[yPos+1][xPos-1]===1){n++;} // SW
+              if(gol_lifeBoard2[yPos+1][xPos]===1){n++;} // S
+              if(gol_lifeBoard2[yPos+1][0]===1){n++;} // SE
             }
             // Cell in right most column, not in a corner
             if(((xPos === (gol_boardCellWidth-1))&&(yPos > 0))&&(yPos < gol_boardCellHeight-1)){
-              if(gol_lifeBoard2[yPos-1][xPos-1]===1){n++;}
-              if(gol_lifeBoard2[yPos-1][xPos]===1){n++;}
-              if(gol_lifeBoard2[yPos-1][0]===1){n++;}
-              if(gol_lifeBoard2[yPos][xPos-1]===1){n++;}
-              if(gol_lifeBoard2[yPos][0]===1){n++;}
-              if(gol_lifeBoard2[yPos+1][xPos-1]===1){n++;}
-              if(gol_lifeBoard2[yPos+1][xPos]===1){n++;}
-              if(gol_lifeBoard2[yPos+1][0]===1){n++;}
+              if(gol_lifeBoard2[yPos-1][xPos-1]===1){n++;} // NW
+              if(gol_lifeBoard2[yPos-1][xPos]===1){n++;} // N
+              if(gol_lifeBoard2[yPos-1][0]===1){n++;} // NE
+              if(gol_lifeBoard2[yPos][xPos-1]===1){n++;} // W
+              if(gol_lifeBoard2[yPos][0]===1){n++;} // E
+              if(gol_lifeBoard2[yPos+1][xPos-1]===1){n++;} // SW
+              if(gol_lifeBoard2[yPos+1][xPos]===1){n++;} // S
+              if(gol_lifeBoard2[yPos+1][0]===1){n++;} // SE
             }
             // Cell in lower right corner
             if((xPos === (gol_boardCellWidth-1))&&(yPos === (gol_boardCellHeight-1))){
-              if(gol_lifeBoard2[yPos-1][xPos-1]===1){n++;}
-              if(gol_lifeBoard2[yPos-1][xPos]===1){n++;}
-              if(gol_lifeBoard2[yPos-1][0]===1){n++;}
-              if(gol_lifeBoard2[yPos][xPos-1]===1){n++;}
-              if(gol_lifeBoard2[yPos][0]===1){n++;}
-              if(gol_lifeBoard2[0][xPos-1]===1){n++;}
-              if(gol_lifeBoard2[0][xPos]===1){n++;}
-              if(gol_lifeBoard2[0][0]===1){n++;}
+              if(gol_lifeBoard2[yPos-1][xPos-1]===1){n++;} // NW
+              if(gol_lifeBoard2[yPos-1][xPos]===1){n++;} // N
+              if(gol_lifeBoard2[yPos-1][0]===1){n++;} // NE
+              if(gol_lifeBoard2[yPos][xPos-1]===1){n++;} // W
+              if(gol_lifeBoard2[yPos][0]===1){n++;} // E
+              if(gol_lifeBoard2[0][xPos-1]===1){n++;} // SW
+              if(gol_lifeBoard2[0][xPos]===1){n++;} // S
+              if(gol_lifeBoard2[0][0]===1){n++;} // SE
             }
           }
+          */
           // Check if current cell is live
           if(gol_lifeBoard2[yPos][xPos]===1){
             if((n>3)||(n<2)){
