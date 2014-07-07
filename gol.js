@@ -39,7 +39,7 @@
   gol_canvas.height = gol_backgroundHeight;
 
   // Set default values for state of board
-  var gol_isPaused = true, gol_shouldPlayIntro = true;
+  var gol_isPaused = true;
 
   /////////////////////////////////////////////
   //  Internal gol functions
@@ -146,18 +146,18 @@
     // Check west
     function checkWest(){
       if(x===0){
-        liveNabes += array[y][array.length-1];
+        liveNabes += array[y][array[0].length-1];
       }
       if(x!==0){
-        liveNabes += array[y][x+1];
+        liveNabes += array[y][x-1];
       } 
     } 
     // Check east
     function checkEast(){
-      if(x===array.length-1){
+      if(x===array[0].length-1){
         liveNabes += array[y][0];
       }
-      if(x!==array.length-1){
+      if(x!==array[0].length-1){
         liveNabes += array[y][x+1];
       }  
     }
@@ -170,24 +170,24 @@
         liveNabes += array[y-1][x-1];
       } 
       if(y===0 && x===0){
-        liveNabes += array[array.length-1][array.length-1];
+        liveNabes += array[array.length-1][array[0].length-1];
       }
       if(y!==0 && x===0){
-        liveNabes += array[y-1][array.length-1];
+        liveNabes += array[y-1][array[0].length-1];
       } 
     }
     // Check northeast
     function checkNortheast(){
-      if(y===0 && x!==array.length-1){
+      if(y===0 && x!==array[0].length-1){
         liveNabes += array[array.length-1][x+1];
       }
-      if(y!==0 && x!==array.length-1){
+      if(y!==0 && x!==array[0].length-1){
         liveNabes += array[y-1][x+1];
       } 
-      if(y===0 && x===array.length-1){
+      if(y===0 && x===array[0].length-1){
         liveNabes += array[array.length-1][0];
       }
-      if(y!==0 && x===array.length-1){
+      if(y!==0 && x===array[0].length-1){
         liveNabes += array[y-1][0];
       } 
     }
@@ -197,10 +197,10 @@
         liveNabes += array[y+1][x-1];
       }
       if(y!==array.length-1 && x===0){
-        liveNabes += array[y+1][array.length-1];
+        liveNabes += array[y+1][array[0].length-1];
       } 
-      if(y===array.length-1 && x===array.length-1){
-        liveNabes += array[0][array.length-1];
+      if(y===array.length-1 && x===array[0].length-1){
+        liveNabes += array[0][array[0].length-1];
       }
       if(y===array.length-1 && x!==0){
         liveNabes += array[0][x-1];
@@ -208,16 +208,16 @@
     }
     // Check southeast
     function checkSoutheast(){
-      if(y!==array.length-1 && x!==array.length-1){
+      if(y!==array.length-1 && x!==array[0].length-1){
         liveNabes += array[y+1][x+1];
       }
-      if(y!==array.length-1 && x===array.length-1){
+      if(y!==array.length-1 && x===array[0].length-1){
         liveNabes += array[y+1][0];
       }
-      if(y===array.length-1 && x===array.length-1){
+      if(y===array.length-1 && x===array[0].length-1){
         liveNabes += array[0][0];
       }
-      if(y===array.length-1 && x!==array.length-1){
+      if(y===array.length-1 && x!==array[0].length-1){
         liveNabes += array[0][x+1];
       }
     }
@@ -231,6 +231,29 @@
     checkSouthwest();
     checkSoutheast();
     return liveNabes;
+  }
+
+  // Set the next board's cell value to 1 or 0
+  // based on number of neighbors.
+  function gol_setNextGen(currentBoard,nextBoard,n,y,x){
+    // Check if current cell is live
+    if(currentBoard[y][x]===1){
+      if((n>3)||(n<2)){
+        nextBoard[y][x] = 0; // Set next board to dead cell
+      }
+      if((n===3)||(n===2)){
+        nextBoard[y][x] = 1; // Set next board to live cell
+      }
+    }
+    // Else cell is dead
+    if(currentBoard[y][x]===0){
+      if(n===3){
+        nextBoard[y][x] = 1; // Set next board to live cell
+      }
+      if(n!==3){
+        nextBoard[y][x] = 0; // Set next board to dead cell
+      }
+    }
   }
 
   // Check current board agains rules for Conway's
@@ -250,128 +273,7 @@
         for(var yPos=0;yPos<gol_boardCellHeight;yPos++){
           n = 0;
           n = gol_getNeighborCount(gol_lifeBoard1, yPos, xPos);
-          /*n=0;
-          // Get number of current live neighbors for cells not on perimeter of board
-          if(((xPos > 0)&&(yPos > 0))&&((xPos < (gol_boardCellWidth-1))&&(yPos < (gol_boardCellHeight-1)))){
-            if(gol_lifeBoard1[yPos-1][xPos-1]===1){n++;} // NW
-            if(gol_lifeBoard1[yPos-1][xPos]===1){n++;} // N
-            if(gol_lifeBoard1[yPos-1][xPos+1]===1){n++;} // NE
-            if(gol_lifeBoard1[yPos][xPos-1]===1){n++;} // W
-            if(gol_lifeBoard1[yPos][xPos+1]===1){n++;} // E
-            if(gol_lifeBoard1[yPos+1][xPos-1]===1){n++;} // SW
-            if(gol_lifeBoard1[yPos+1][xPos]===1){n++;} // S
-            if(gol_lifeBoard1[yPos+1][xPos+1]===1){n++;} // SE
-          }
-          // Get number of current live neighbors for cells on perimeter of board
-          if(((xPos === 0)||(yPos === 0))||((xPos === (gol_boardCellWidth-1))||(yPos === (gol_boardCellHeight-1)))){
-            // Cell in upper left corner
-            if((xPos === 0)&&(yPos === 0)){
-              if(gol_lifeBoard1[gol_boardCellHeight-1][gol_boardCellWidth-1]===1){n++;} // NW
-              if(gol_lifeBoard1[gol_boardCellHeight-1][xPos]===1){n++;} // N
-              if(gol_lifeBoard1[gol_boardCellHeight-1][xPos+1]===1){n++;} // NE
-              if(gol_lifeBoard1[yPos][gol_boardCellWidth-1]===1){n++;} // W
-              if(gol_lifeBoard1[yPos][xPos+1]===1){n++;} // E
-              if(gol_lifeBoard1[yPos+1][gol_boardCellWidth-1]===1){n++;} // SW
-              if(gol_lifeBoard1[yPos+1][xPos]===1){n++;} // S
-              if(gol_lifeBoard1[yPos+1][xPos+1]===1){n++;} // SE
-            }
-            // Cell in left most column, not in a corner
-            if(((xPos === 0)&&(yPos > 0))&&(yPos < gol_boardCellHeight-1)){
-              if(gol_lifeBoard1[gol_boardCellHeight-1][xPos-1]===1){n++;} // NW
-              if(gol_lifeBoard1[yPos-1][xPos]===1){n++;} // N
-              if(gol_lifeBoard1[yPos-1][xPos+1]===1){n++;} // NE
-              if(gol_lifeBoard1[yPos][gol_boardCellWidth-1]===1){n++;} // W
-              if(gol_lifeBoard1[yPos][xPos+1]===1){n++;} // E
-              if(gol_lifeBoard1[yPos+1][gol_boardCellWidth-1]===1){n++;} // SW
-              if(gol_lifeBoard1[yPos+1][xPos]===1){n++;} // S
-              if(gol_lifeBoard1[yPos+1][xPos+1]===1){n++;} // SE
-            }
-            // Cell in lower left corner
-            if((xPos === 0)&&(yPos === (gol_boardCellHeight-1))){
-              if(gol_lifeBoard1[yPos-1][gol_boardCellWidth-1]===1){n++;} // NW
-              if(gol_lifeBoard1[yPos-1][xPos]===1){n++;} // N
-              if(gol_lifeBoard1[yPos-1][xPos+1]===1){n++;} // NE
-              if(gol_lifeBoard1[yPos][gol_boardCellWidth-1]===1){n++;} // W
-              if(gol_lifeBoard1[yPos][xPos+1]===1){n++;} // E
-              if(gol_lifeBoard1[0][gol_boardCellWidth-1]===1){n++;} // SW
-              if(gol_lifeBoard1[0][xPos]===1){n++;} // S
-              if(gol_lifeBoard1[0][xPos+1]===1){n++;} // SE
-            }
-            // Cell in top most row, not in a corner
-            if(((xPos > 0)&&(yPos === 0))&&(xPos < gol_boardCellWidth-1)){
-              if(gol_lifeBoard1[gol_boardCellHeight-1][xPos-1]===1){n++;} // NW
-              if(gol_lifeBoard1[gol_boardCellHeight-1][xPos]===1){n++;} // N
-              if(gol_lifeBoard1[gol_boardCellHeight-1][xPos+1]===1){n++;} // NE
-              if(gol_lifeBoard1[yPos][xPos-1]===1){n++;} // W
-              if(gol_lifeBoard1[yPos][xPos+1]===1){n++;} // E
-              if(gol_lifeBoard1[yPos+1][xPos-1]===1){n++;} // SW
-              if(gol_lifeBoard1[yPos+1][xPos]===1){n++;} // S
-              if(gol_lifeBoard1[yPos+1][xPos+1]===1){n++;} // SE
-            }
-            // Cell in bottom most row, not in a corner
-            if(((xPos > 0)&&(yPos === (gol_boardCellHeight-1)))&&(xPos < gol_boardCellWidth-1)){
-              if(gol_lifeBoard1[yPos-1][xPos-1]===1){n++;} // NW
-              if(gol_lifeBoard1[yPos-1][xPos]===1){n++;} // N
-              if(gol_lifeBoard1[yPos-1][xPos+1]===1){n++;} // NE
-              if(gol_lifeBoard1[yPos][xPos-1]===1){n++;} // W
-              if(gol_lifeBoard1[yPos][xPos+1]===1){n++;} // E
-              if(gol_lifeBoard1[0][xPos-1]===1){n++;} // SW
-              if(gol_lifeBoard1[0][xPos]===1){n++;} // S
-              if(gol_lifeBoard1[0][xPos+1]===1){n++;} // SE
-            }
-            // Cell in upper right corner
-            if((xPos === (gol_boardCellWidth-1))&&(yPos === 0)){
-              if(gol_lifeBoard1[gol_boardCellHeight-1][xPos-1]===1){n++;} // NW
-              if(gol_lifeBoard1[gol_boardCellHeight-1][xPos]===1){n++;} // N
-              if(gol_lifeBoard1[gol_boardCellHeight-1][0]===1){n++;} // NE
-              if(gol_lifeBoard1[yPos][xPos-1]===1){n++;} // W
-              if(gol_lifeBoard1[yPos][0]===1){n++;} // E
-              if(gol_lifeBoard1[yPos+1][xPos-1]===1){n++;} // SW
-              if(gol_lifeBoard1[yPos+1][xPos]===1){n++;} // S
-              if(gol_lifeBoard1[yPos+1][0]===1){n++;} // SE
-            }
-            // Cell in right most column, not in a corner
-            if(((xPos === (gol_boardCellWidth-1))&&(yPos > 0))&&(yPos < gol_boardCellHeight-1)){
-              if(gol_lifeBoard1[yPos-1][xPos-1]===1){n++;} // NW
-              if(gol_lifeBoard1[yPos-1][xPos]===1){n++;} // N
-              if(gol_lifeBoard1[yPos-1][0]===1){n++;} // NE
-              if(gol_lifeBoard1[yPos][xPos-1]===1){n++;} // W
-              if(gol_lifeBoard1[yPos][0]===1){n++;} // E
-              if(gol_lifeBoard1[yPos+1][xPos-1]===1){n++;} // SW
-              if(gol_lifeBoard1[yPos+1][xPos]===1){n++;} // S
-              if(gol_lifeBoard1[yPos+1][0]===1){n++;} // SE
-            }
-            // Cell in lower right corner
-            if((xPos === (gol_boardCellWidth-1))&&(yPos === (gol_boardCellHeight-1))){
-              if(gol_lifeBoard1[yPos-1][xPos-1]===1){n++;} // NW
-              if(gol_lifeBoard1[yPos-1][xPos]===1){n++;} // N
-              if(gol_lifeBoard1[yPos-1][0]===1){n++;} // NE
-              if(gol_lifeBoard1[yPos][xPos-1]===1){n++;} // W
-              if(gol_lifeBoard1[yPos][0]===1){n++;} // E
-              if(gol_lifeBoard1[0][xPos-1]===1){n++;} // SW
-              if(gol_lifeBoard1[0][xPos]===1){n++;} // S
-              if(gol_lifeBoard1[0][0]===1){n++;} // SE
-            }
-          }
-          */
-          // Check if current cell is live
-          if(gol_lifeBoard1[yPos][xPos]===1){
-            if((n>3)||(n<2)){
-              gol_lifeBoard2[yPos][xPos] = 0; // Set next board to dead cell
-            }
-            if((n===3)||(n===2)){
-              gol_lifeBoard2[yPos][xPos] = 1; // Set next board to live cell
-            }
-          }
-          // Else cell is dead
-          if(gol_lifeBoard1[yPos][xPos]===0){
-            if(n===3){
-              gol_lifeBoard2[yPos][xPos] = 1; // Set next board to live cell
-            }
-            if(n!==3){
-              gol_lifeBoard2[yPos][xPos] = 0; // Set next board to dead cell
-            }
-          }
+          gol_setNextGen(gol_lifeBoard1,gol_lifeBoard2,n,yPos,xPos);
         }
       }
       gol_clearLife(gol_lifeBoard1);
@@ -382,140 +284,13 @@
         for(yPos=0;yPos<gol_boardCellHeight;yPos++){
           n=0;
           n = gol_getNeighborCount(gol_lifeBoard2, yPos, xPos);
-          /*
-          // Get number of current live neighbors
-          if(((xPos > 1)&&(yPos > 1))&&((xPos < (gol_boardCellWidth-2))&&(yPos < (gol_boardCellHeight-2)))){
-            if(gol_lifeBoard2[yPos-1][xPos-1]===1){n++;} // NW
-            if(gol_lifeBoard2[yPos-1][xPos]===1){n++;} // N
-            if(gol_lifeBoard2[yPos-1][xPos+1]===1){n++;} // NE
-            if(gol_lifeBoard2[yPos][xPos-1]===1){n++;} // W
-            if(gol_lifeBoard2[yPos][xPos+1]===1){n++;} // E
-            if(gol_lifeBoard2[yPos+1][xPos-1]===1){n++;} // SW
-            if(gol_lifeBoard2[yPos+1][xPos]===1){n++;} // S
-            if(gol_lifeBoard2[yPos+1][xPos+1]===1){n++;} // SE
-          }
-          // Get number of current live neighbors for cells on perimeter of board
-          if(((xPos === 0)||(yPos === 0))||((xPos === (gol_boardCellWidth-1))||(yPos === (gol_boardCellHeight-1)))){
-            // Cell in upper left corner
-            if((xPos === 0)&&(yPos === 0)){
-              if(gol_lifeBoard2[gol_boardCellHeight-1][gol_boardCellWidth-1]===1){n++;} // NW
-              if(gol_lifeBoard2[gol_boardCellHeight-1][xPos]===1){n++;} // N
-              if(gol_lifeBoard2[gol_boardCellHeight-1][xPos+1]===1){n++;} // NE
-              if(gol_lifeBoard2[yPos][gol_boardCellWidth-1]===1){n++;} // W
-              if(gol_lifeBoard2[yPos][xPos+1]===1){n++;} // E
-              if(gol_lifeBoard2[yPos+1][gol_boardCellWidth-1]===1){n++;} // SW
-              if(gol_lifeBoard2[yPos+1][xPos]===1){n++;} // S
-              if(gol_lifeBoard2[yPos+1][xPos+1]===1){n++;} // SE
-            }
-            // Cell in left most column, not in a corner
-            if(((xPos === 0)&&(yPos > 0))&&(yPos < gol_boardCellHeight-1)){
-              if(gol_lifeBoard2[gol_boardCellHeight-1][xPos-1]===1){n++;} // NW
-              if(gol_lifeBoard2[yPos-1][xPos]===1){n++;} // N
-              if(gol_lifeBoard2[yPos-1][xPos+1]===1){n++;} // NE
-              if(gol_lifeBoard2[yPos][gol_boardCellWidth-1]===1){n++;} // W
-              if(gol_lifeBoard2[yPos][xPos+1]===1){n++;} // E
-              if(gol_lifeBoard2[yPos+1][gol_boardCellWidth-1]===1){n++;} // SW
-              if(gol_lifeBoard2[yPos+1][xPos]===1){n++;} // S
-              if(gol_lifeBoard2[yPos+1][xPos+1]===1){n++;} // SE
-            }
-            // Cell in lower left corner
-            if((xPos === 0)&&(yPos === (gol_boardCellHeight-1))){
-              if(gol_lifeBoard2[yPos-1][gol_boardCellWidth-1]===1){n++;} // NW
-              if(gol_lifeBoard2[yPos-1][xPos]===1){n++;} // N
-              if(gol_lifeBoard2[yPos-1][xPos+1]===1){n++;} // NE
-              if(gol_lifeBoard2[yPos][gol_boardCellWidth-1]===1){n++;} // W
-              if(gol_lifeBoard2[yPos][xPos+1]===1){n++;} // E
-              if(gol_lifeBoard2[0][gol_boardCellWidth-1]===1){n++;} // SW
-              if(gol_lifeBoard2[0][xPos]===1){n++;} // S
-              if(gol_lifeBoard2[0][xPos+1]===1){n++;} // SE
-            }
-            // Cell in top most row, not in a corner
-            if(((xPos > 0)&&(yPos === 0))&&(xPos < gol_boardCellWidth-1)){
-              if(gol_lifeBoard2[gol_boardCellHeight-1][xPos-1]===1){n++;} // NW
-              if(gol_lifeBoard2[gol_boardCellHeight-1][xPos]===1){n++;} // N
-              if(gol_lifeBoard2[gol_boardCellHeight-1][xPos+1]===1){n++;} // NE
-              if(gol_lifeBoard2[yPos][xPos-1]===1){n++;} // W
-              if(gol_lifeBoard2[yPos][xPos+1]===1){n++;} // E
-              if(gol_lifeBoard2[yPos+1][xPos-1]===1){n++;} // SW
-              if(gol_lifeBoard2[yPos+1][xPos]===1){n++;} // S
-              if(gol_lifeBoard2[yPos+1][xPos+1]===1){n++;} // SE
-            }
-            
-            // Cell in bottom most row, not in a corner
-            if(((xPos > 0)&&(yPos === (gol_boardCellHeight-1)))&&(xPos < gol_boardCellWidth-1)){
-              if(gol_lifeBoard2[yPos-1][xPos-1]===1){n++;} // NW
-              if(gol_lifeBoard2[yPos-1][xPos]===1){n++;} // N
-              if(gol_lifeBoard2[yPos-1][xPos+1]===1){n++;} // NE
-              if(gol_lifeBoard2[yPos][xPos-1]===1){n++;} // W
-              if(gol_lifeBoard2[yPos][xPos+1]===1){n++;} // E
-              if(gol_lifeBoard2[0][xPos-1]===1){n++;} // SW
-              if(gol_lifeBoard2[0][xPos]===1){n++;} // S
-              if(gol_lifeBoard2[0][xPos+1]===1){n++;} // SE
-            }
-            // Cell in upper right corner
-            if((xPos === (gol_boardCellWidth-1))&&(yPos === 0)){
-              if(gol_lifeBoard2[gol_boardCellHeight-1][xPos-1]===1){n++;} // NW
-              if(gol_lifeBoard2[gol_boardCellHeight-1][xPos]===1){n++;} // N
-              if(gol_lifeBoard2[gol_boardCellHeight-1][0]===1){n++;} // NE
-              if(gol_lifeBoard2[yPos][xPos-1]===1){n++;} // W
-              if(gol_lifeBoard2[yPos][0]===1){n++;} // E
-              if(gol_lifeBoard2[yPos+1][xPos-1]===1){n++;} // SW
-              if(gol_lifeBoard2[yPos+1][xPos]===1){n++;} // S
-              if(gol_lifeBoard2[yPos+1][0]===1){n++;} // SE
-            }
-            // Cell in right most column, not in a corner
-            if(((xPos === (gol_boardCellWidth-1))&&(yPos > 0))&&(yPos < gol_boardCellHeight-1)){
-              if(gol_lifeBoard2[yPos-1][xPos-1]===1){n++;} // NW
-              if(gol_lifeBoard2[yPos-1][xPos]===1){n++;} // N
-              if(gol_lifeBoard2[yPos-1][0]===1){n++;} // NE
-              if(gol_lifeBoard2[yPos][xPos-1]===1){n++;} // W
-              if(gol_lifeBoard2[yPos][0]===1){n++;} // E
-              if(gol_lifeBoard2[yPos+1][xPos-1]===1){n++;} // SW
-              if(gol_lifeBoard2[yPos+1][xPos]===1){n++;} // S
-              if(gol_lifeBoard2[yPos+1][0]===1){n++;} // SE
-            }
-            // Cell in lower right corner
-            if((xPos === (gol_boardCellWidth-1))&&(yPos === (gol_boardCellHeight-1))){
-              if(gol_lifeBoard2[yPos-1][xPos-1]===1){n++;} // NW
-              if(gol_lifeBoard2[yPos-1][xPos]===1){n++;} // N
-              if(gol_lifeBoard2[yPos-1][0]===1){n++;} // NE
-              if(gol_lifeBoard2[yPos][xPos-1]===1){n++;} // W
-              if(gol_lifeBoard2[yPos][0]===1){n++;} // E
-              if(gol_lifeBoard2[0][xPos-1]===1){n++;} // SW
-              if(gol_lifeBoard2[0][xPos]===1){n++;} // S
-              if(gol_lifeBoard2[0][0]===1){n++;} // SE
-            }
-          }
-          */
-          // Check if current cell is live
-          if(gol_lifeBoard2[yPos][xPos]===1){
-            if((n>3)||(n<2)){
-              gol_lifeBoard1[yPos][xPos] = 0; // Set next board to dead cell
-            }
-            if((n===3)||(n===2)){
-              gol_lifeBoard1[yPos][xPos] = 1; // Set next board to live cell
-            }
-          }
-          // Else cell is dead
-          if(gol_lifeBoard2[yPos][xPos]===0){
-            if(n===3){
-              gol_lifeBoard1[yPos][xPos] = 1; // Set next board to live cell
-            }
-            if(n!==3){
-              gol_lifeBoard1[yPos][xPos] = 0; // Set next board to dead cell
-            }
-          }
+          gol_setNextGen(gol_lifeBoard2,gol_lifeBoard1,n,yPos,xPos);
         }
       }
       gol_clearLife(gol_lifeBoard2);
     }
     // Reset current board
     gol_board1isCurrent = !gol_board1isCurrent;
-  }
-
-  // Plays gol intro
-  function gol_playIntro(){
-    ;
   }
 
   // Gol life loop
@@ -537,6 +312,32 @@
     gol_isPaused = true;
   }
 
+  // Callback for mousedown on gol canvas
+  function gol_getPosition(event){
+    var currentBoard = gol_lifeBoard1;
+    if(!gol_board1isCurrent){
+      currentBoard = gol_lifeBoard2;
+    }
+    // Get mouse position
+    var x = event.x;
+    var y = event.y;
+    // Get x and y relative to canvas
+    x -= gol_canvas.offsetLeft;
+    y -= gol_canvas.offsetTop;
+    // Fill appropriate square at mouse click
+    var adjX = Math.floor(x/(gol_cellSize+1)) * (gol_cellSize+1) + 1;
+    var adjY = Math.floor(y/(gol_cellSize+1)) * (gol_cellSize+1) + 1;
+    // Fill selected square
+    gol_ctx.fillStyle = gol_backgroundColor;
+    gol_ctx.fillRect(adjX,adjY,gol_cellSize,gol_cellSize);
+    // Update board with user selected live cells
+    var colX = Math.floor(x/(gol_cellSize+1));
+    if(x<(gol_cellSize+2)){colX=0;}
+    var rowY = Math.floor(y/(gol_cellSize+1));
+    if(y<(gol_cellSize+2)){rowY=0;}
+    currentBoard[rowY][colX] = 1;
+  }
+
   /////////////////////////////////////////////
   //  External functions to be called by user
   /////////////////////////////////////////////
@@ -544,45 +345,22 @@
   // Basic gol operations
   // Setup blank board and intro if desired
   gol.setupLife = function(){
-    // Check if time to play intro
-    if(gol_shouldPlayIntro){
-      gol_playIntro();
-    }
-    // If intro is over, or not chosen, turn off intro
     gol_shouldPlayIntro = false;
     gol_drawEmptyBoard();
     gol_clearLife(gol_lifeBoard1);
     gol_clearLife(gol_lifeBoard2);
     // Let user select initial live cells
-    gol_canvas.addEventListener("mousedown", getPosition, false);
-    function getPosition(event){
-      // Get mouse position
-      var x = event.x;
-      var y = event.y;
-      // Get x and y relative to canvas
-      x -= gol_canvas.offsetLeft;
-      y -= gol_canvas.offsetTop;
-      // Fill appropriate square at mouse click
-      var adjX = Math.floor(x/(gol_cellSize+1)) * (gol_cellSize+1) + 1;
-      var adjY = Math.floor(y/(gol_cellSize+1)) * (gol_cellSize+1) + 1;
-      // Fill selected square
-      gol_ctx.fillStyle = gol_backgroundColor;
-      gol_ctx.fillRect(adjX,adjY,gol_cellSize,gol_cellSize);
-      // Update board with user selected live cells
-      var colX = Math.floor(x/(gol_cellSize+1));
-      if(x<(gol_cellSize+2)){colX=0;}
-      var rowY = Math.floor(y/(gol_cellSize+1));
-      if(y<(gol_cellSize+2)){rowY=0;}
-      gol_lifeBoard1[rowY][colX] = 1;
-    }
+    gol_canvas.addEventListener("mousedown", gol_getPosition, false);
   };
   // Play current gol board
   gol.playLife = function(){
+    gol_canvas.removeEventListener("mousedown", gol_getPosition, false);
     gol_playLife();
   };
   // Pause
   gol.pauseLife = function(){
     gol_pauseLife();
+    gol_canvas.addEventListener("mousedown", gol_getPosition, false);
   };
   // Reset the board
   gol.clearLife = function(){
@@ -590,9 +368,21 @@
     gol_clearLife(gol_lifeBoard1);
     gol_clearLife(gol_lifeBoard2);
     gol_drawLife();
+    gol_canvas.addEventListener("mousedown", gol_getPosition, false);
   };
 
   // Customize gol
+  // Set board width, height
+  gol.setSize = function(newCellWidth, newCellHeight){
+    gol_pauseLife();
+    gol_boardCellWidth = newWidth;
+    gol_boardCellHeight = newHeight;
+    gol_backgroundWidth = ((gol_boardCellWidth*gol_cellSize)+gol_boardCellWidth+1);
+    gol_backgroundHeight = ((gol_boardCellHeight*gol_cellSize)+gol_boardCellHeight+1);
+    gol_clearLife(gol_lifeBoard1);
+    gol_clearLife(gol_lifeBoard2);
+    gol_drawLife(); 
+  }
   // Change grid color, takes a valid CSS color string, pauses game
   gol.setGridColor = function(newGridColor){
     gol_pauseLife();
@@ -611,13 +401,6 @@
     gol_pauseLife();
     gol_lifeSpeed = newLifeSpeed;
     gol_playLife();
-  };
-  // Turn intro on/off, "1" = on, "0" = off
-  gol.setIntro = function(newSetting){
-    gol_shouldPlayIntro = false;
-    if(newSetting===1){
-      gol_shouldPlayIntro = true;
-    }
   };
 
   // Register the gol object to the global namespace
