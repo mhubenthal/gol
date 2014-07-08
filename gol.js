@@ -324,18 +324,26 @@
     // Get x and y relative to canvas
     x -= gol_canvas.offsetLeft;
     y -= gol_canvas.offsetTop;
-    // Fill appropriate square at mouse click
+    // Get coordinates to paint current cell
     var adjX = Math.floor(x/(gol_cellSize+1)) * (gol_cellSize+1) + 1;
     var adjY = Math.floor(y/(gol_cellSize+1)) * (gol_cellSize+1) + 1;
-    // Fill selected square
-    gol_ctx.fillStyle = gol_backgroundColor;
-    gol_ctx.fillRect(adjX,adjY,gol_cellSize,gol_cellSize);
-    // Update board with user selected live cells
+    // Get position of cell in board array
     var colX = Math.floor(x/(gol_cellSize+1));
     if(x<(gol_cellSize+2)){colX=0;}
     var rowY = Math.floor(y/(gol_cellSize+1));
     if(y<(gol_cellSize+2)){rowY=0;}
-    currentBoard[rowY][colX] = 1;
+    // Change selected cell to live
+    if(currentBoard[rowY][colX] === 0){
+      gol_ctx.fillStyle = gol_backgroundColor;
+      gol_ctx.fillRect(adjX,adjY,gol_cellSize,gol_cellSize);
+      currentBoard[rowY][colX] = 1;
+    }
+    // Change selected cell to dead
+    else {
+      gol_ctx.fillStyle = gol_cellColor;
+      gol_ctx.fillRect(adjX,adjY,gol_cellSize,gol_cellSize);
+      currentBoard[rowY][colX] = 0;
+    }
   }
 
   /////////////////////////////////////////////
