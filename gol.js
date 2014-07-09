@@ -319,8 +319,8 @@
       currentBoard = gol_lifeBoard2;
     }
     // Get mouse position
-    var x = event.x;
-    var y = event.y;
+    var x = event.pageX;
+    var y = event.pageY;
     // Get x and y relative to canvas
     x -= gol_canvas.offsetLeft;
     y -= gol_canvas.offsetTop;
