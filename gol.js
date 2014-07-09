@@ -351,9 +351,8 @@
   /////////////////////////////////////////////
 
   // Basic gol operations
-  // Setup blank board and intro if desired
+  // Setup blank board
   gol.setupLife = function(){
-    gol_shouldPlayIntro = false;
     gol_drawEmptyBoard();
     gol_clearLife(gol_lifeBoard1);
     gol_clearLife(gol_lifeBoard2);
