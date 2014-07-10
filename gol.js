@@ -296,20 +296,20 @@
   // Gol life loop
   function gol_playLife(){
     // If gol is not already playing, start it up
-    if(gol_isPaused){
-      clearInterval(gol_intervalId); // Clear any previously running gol
-      gol_isPaused = false;
-      gol_intervalId = setInterval(function(){
-        gol_checkBoard();
-        gol_drawLife();
-      }, gol_lifeSpeed);  
-    }
+    clearInterval(gol_intervalId); // Clear any previously running gol
+    gol_isPaused = false;
+    gol_intervalId = setInterval(function(){
+      gol_checkBoard();
+      gol_drawLife();
+    }, gol_lifeSpeed);  
   }
 
   // Pause gol
   function gol_pauseLife() {
-    clearInterval(gol_intervalId);
-    gol_isPaused = true;
+    if(!gol_isPaused){
+      clearInterval(gol_intervalId);
+      gol_isPaused = true;
+    }
   }
 
   // Callback for mousedown on gol canvas
@@ -379,36 +379,70 @@
   };
 
   // Customize gol
+  // Note: setSize method still needs to be implemented
   // Set board width, height
+  /*
   gol.setSize = function(newCellWidth, newCellHeight){
-    gol_pauseLife();
-    gol_boardCellWidth = newWidth;
-    gol_boardCellHeight = newHeight;
+    //gol_pauseLife();
+    gol_boardCellWidth = newCellWidth;
+    gol_boardCellHeight = newCellHeight;
     gol_backgroundWidth = ((gol_boardCellWidth*gol_cellSize)+gol_boardCellWidth+1);
     gol_backgroundHeight = ((gol_boardCellHeight*gol_cellSize)+gol_boardCellHeight+1);
     gol_clearLife(gol_lifeBoard1);
     gol_clearLife(gol_lifeBoard2);
     gol_drawLife(); 
   }
+  */
   // Change grid color, takes a valid CSS color string, pauses game
   gol.setGridColor = function(newGridColor){
-    gol_pauseLife();
     gol_backgroundColor = newGridColor;
-    gol_drawBackground();
-    gol_drawLife();
+    if(gol_isPaused){
+      gol_drawBackground();
+      gol_drawLife();
+    }
   };
   // Change cell color, takes a valid CSS color string, pauses game
   gol.setCellColor = function (newCellColor) {
-    gol_pauseLife();
     gol_cellColor = newCellColor;
-    gol_drawLife();
+    if(gol_isPaused){
+      gol_drawLife();
+    }
   };
   // Change interval in ms of lifecycles
   gol.setLifeSpeed = function(newLifeSpeed){
-    gol_pauseLife();
     gol_lifeSpeed = newLifeSpeed;
-    gol_playLife();
+    // Keep gol running if currently running
+    if(!gol_isPaused){
+      gol_playLife();
+    }
   };
+  // Populate board with a randomly populated game of life
+  gol.setSampleBoard = function(){
+    gol_pauseLife();
+    gol_clearLife(gol_lifeBoard1);
+    gol_clearLife(gol_lifeBoard2);  
+    // Get a random value of 1 or 0
+    function getRandomCell() {
+      return Math.floor(Math.random() * 2);
+    }
+    if(gol_board1isCurrent){
+      for(var yPos=10;yPos<20;yPos++){
+        gol_lifeBoard1[yPos] = [];
+        for(var xPos=15;xPos<45;xPos++){
+          gol_lifeBoard1[yPos][xPos] = getRandomCell();
+        }
+      }
+    }
+    if(!gol_board1isCurrent){
+      for(var yPos=10;yPos<20;yPos++){
+        gol_lifeBoard2[yPos] = [];
+        for(var xPos=15;xPos<45;xPos++){
+          gol_lifeBoard2[yPos][xPos] = getRandomCell();
+        }
+      }  
+    }
+    gol_drawLife();
+  }
 
   // Register the gol object to the global namespace
   window.gol = gol;
