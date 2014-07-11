@@ -428,7 +428,7 @@
     if(gol_board1isCurrent){
       for(var yPos=10;yPos<20;yPos++){
         gol_lifeBoard1[yPos] = [];
-        for(var xPos=15;xPos<45;xPos++){
+        for(var xPos=25;xPos<35;xPos++){
           gol_lifeBoard1[yPos][xPos] = getRandomCell();
         }
       }
@@ -436,7 +436,7 @@
     if(!gol_board1isCurrent){
       for(var yPos=10;yPos<20;yPos++){
         gol_lifeBoard2[yPos] = [];
-        for(var xPos=15;xPos<45;xPos++){
+        for(var xPos=25;xPos<35;xPos++){
           gol_lifeBoard2[yPos][xPos] = getRandomCell();
         }
       }  
