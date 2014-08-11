@@ -416,7 +416,7 @@
       gol_playLife();
     }
   };
-  // Populate board with a randomly populated game of life
+  // Populate board with randomly populated game of life
   gol.setSampleBoard = function(){
     gol_pauseLife();
     gol_clearLife(gol_lifeBoard1);
