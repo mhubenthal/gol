@@ -1,4 +1,4 @@
-###  Conway's Game of Life implemented in Javascript using the ```<canvas>``` tag.
+###  Conway's Game of Life implemented in JavaScript using the ```<canvas>``` tag.
 
 Include ```<canvas id="gol_canvas"></canvas>``` on your page. 
 Include the gol.js script, the ```gol``` object will be attached to
