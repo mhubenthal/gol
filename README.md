@@ -13,3 +13,5 @@ The ```gol``` canvas allows the user to select cells to make alive or dead with 
 The board can also be customized on the fly with ```gol.setSize();```, ```gol.setGridColor();```, ```gol.setCellColor();``` and ```gol.setLifeSpeed();```.
 
 (Note: Extremely large gol boards have not been tested for performance. The default size is 60 cells wide by 30 cells tall.) 
+
+** TEST **
